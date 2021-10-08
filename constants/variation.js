@@ -9,5 +9,7 @@ export const VariationSkeleton = {
     width: '',
     height: '',
     shipping_class: '',
-    description: ''
+    description: '',
+    enabled: false,
+    manage_stock: false
 }
