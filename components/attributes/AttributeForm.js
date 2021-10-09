@@ -4,37 +4,36 @@ import Textarea from "../common/Textarea";
 import Toggle from "../common/Toggle";
 import {attributeSkeleton} from "../../constants/attribute";
 import {useState} from "react";
+import {useForm} from "react-hook-form";
+
 
 export default function AttributeForm() {
-    const [attribute, setAttribute] = useState(attributeSkeleton);
-    const handleChange = (e, field) => {
-        const {value} = e.target;
-        setAttribute((state) => ({
-            ...state,
-            [field]: value
-        }))
+    const {register, handleSubmit, control} = useForm();
+    const onSubmit = (data) => {
+        console.log(data)
     }
     return (
         <>
-            <form action="">
+            <form onSubmit={handleSubmit(onSubmit)} method={`post`} action="">
                 <div className={`grid grid-cols-3 gap-x-4`}>
                     <div>
                         <div className={`mb-4`}>
                             <Label>Name</Label>
-                            <Input onChange={(e) => handleChange(e, 'name')} value={attribute.name}/>
+                            <Input required register={register} name="name"/>
                         </div>
                         <div className={`flex flex-col gap-y-2`}>
-                            <Toggle enabled={attribute.visible_on_product_page}
-                                    onChange={(e) => handleChange(e, 'visible_on_product_page')}
-                                    label="Visible on product page"/>
-                            <Toggle enabled={attribute.used_in_variations}
-                                    onChange={(e) => handleChange(e, 'used_in_variations')}
+                            <Toggle control={control}
+                                    name="visible_on_product_page"
+                                    label="Visible on Product Page"/>
+
+                            <Toggle control={control}
+                                    name="used_in_variations"
                                     label="Used for variations"/>
                         </div>
                     </div>
                     <div className={`col-span-2`}>
                         <Label>Value(s)</Label>
-                        <Textarea value={attribute.description} onChange={(e) => handleChange(e, 'description')}/>
+                        <Textarea name="description" register={register} required/>
                     </div>
                 </div>
                 <div className={`flex items-center justify-end`}>

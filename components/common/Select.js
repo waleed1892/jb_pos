@@ -49,7 +49,7 @@ export default function Select({options = [], valueField = 'id', labelField = 'l
                             <Listbox.Option
                                 key={optionIndex}
                                 className={({active}) =>
-                                    `${active ? 'text-blue-900 bg-blueGray-200' : 'text-gray-900'}
+                                    `${active ? 'text-indigo-600 bg-indigo-200' : 'text-gray-900'}
                           cursor-pointer select-none relative py-2 pl-10 pr-4`
                                 }
                                 value={option[valueField]}
@@ -66,7 +66,7 @@ export default function Select({options = [], valueField = 'id', labelField = 'l
                                         {selected ? (
                                             <span
                                                 className={`${
-                                                    active ? 'text-blue-900' : 'text-blue-900'
+                                                    active ? 'text-indigo-600' : 'text-indigo-600'
                                                 }
                                 absolute inset-y-0 left-0 flex items-center pl-3`}
                                             >

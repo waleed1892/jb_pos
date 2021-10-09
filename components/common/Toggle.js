@@ -1,28 +1,45 @@
+import React, {useState} from "react";
 import {Switch} from "@headlessui/react";
+import {useController} from "react-hook-form";
 
 /**
  *
- * @param onChange {function}
  * @param label {string}
- * @param value {boolean}
+ * @param name {string}
+ * @param control
+ * @param props
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Toggle({value, onChange, label}) {
+export default function Toggle({label, name, control, ...props}) {
+    const [checked, setChecked] = useState(false)
+    const {
+        field: {onChange},
+        fieldState: {invalid, isTouched, isDirty},
+        formState: {touchedFields, dirtyFields}
+    } = useController({
+        name,
+        control,
+        rules: {...props},
+    });
+    const handleChange = (e) => {
+        onChange(e);
+        setChecked(e)
+    }
     return (
         <Switch.Group>
             <div className={`flex items-center`}>
                 <Switch
-                    checked={value}
-                    onChange={onChange}
+                    checked={checked}
+                    onChange={handleChange}
                     className={`${
-                        value ? 'bg-blue-600' : 'bg-gray-200'
+                        checked ? 'bg-blue-600' : 'bg-gray-200'
                     } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                 >
                     <span className={`sr-only`}>{label}</span>
                     <span
                         className={`${
-                            value ? 'translate-x-6' : 'translate-x-1'
+                            checked ? 'translate-x-6' : 'translate-x-1'
                         } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
                     />
                 </Switch>

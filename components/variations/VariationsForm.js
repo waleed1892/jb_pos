@@ -5,9 +5,11 @@ import {useMemo, useState} from "react";
 import Toggle from "../common/Toggle";
 import Textarea from "../common/Textarea";
 import Select from "../common/Select";
+import FileUpload from "../common/FileUpload";
 
 export default function VariationsForm() {
     const [variation, setVariation] = useState({...VariationSkeleton});
+    const [showScheduleFields, setShowScheduleFields] = useState(false);
     const handleInputChange = (e, field) => {
         const {value} = e.target;
         setVariation((state) => ({
@@ -23,21 +25,19 @@ export default function VariationsForm() {
     }
 
     const stockOptions = useMemo(() => [
-        {label: 'In Stock', value: 1},
-        {label: 'Out of Stock', value: 2}
+        {label: 'In Stock', value: 'in_stock'},
+        {label: 'Out of Stock', value: 'out_of_stock'},
+        {label: 'On Backorder', value: 'on_backorder'},
     ], [])
 
     const shippingOptions = useMemo(() => [
-        {label: 'Same as parent', value: 1},
-        {label: 'Original', value: 2}
+        {label: 'Same as parent', value: 'same_as_parent'},
     ], [])
     return (
         <form action="">
             <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
                 <div>
-                    <div className={`w-28 h-24`}>
-                        <img className={`w-full h-full object-cover`} src="/img/placeholder.svg" alt=""/>
-                    </div>
+                    <FileUpload label="Upload Image"/>
                 </div>
                 <div>
                     <Label forEl="sku">SKU</Label>
@@ -58,8 +58,33 @@ export default function VariationsForm() {
                 </div>
                 <div>
                     <Label>Sale Price (AED)</Label>
+                    {
+                        showScheduleFields
+                            ? <a onClick={() => setShowScheduleFields(false)}
+                                 className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>Cancel Schedule</a>
+                            :
+                            <a onClick={() => setShowScheduleFields(true)}
+                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>Schedule</a>
+                    }
                     <Input value={variation.sale_price} onChange={(e) => handleInputChange(e, 'sale_price')}/>
                 </div>
+                {
+                    showScheduleFields &&
+                    <>
+                        <div>
+                            <Label>Sale Start Date</Label>
+                            <Input value={variation.sale_start_date} type="date"
+                                   onChange={(e) => handleInputChange(e, 'sale_start_date')}
+                                   placeholder="From...YYYY/MMD/DD"/>
+                        </div>
+                        <div>
+                            <Label>Sale End Date</Label>
+                            <Input value={variation.sale_end_date} type="date"
+                                   onChange={(e) => handleInputChange(e, 'sale_end_date')}
+                                   placeholder="To...YYYY/MMD/DD"/>
+                        </div>
+                    </>
+                }
                 <div className={`col-span-2`}>
                     <Label>Stock Status</Label>
                     <Select value={variation.stock_status} onChange={(value) => handleChange('stock_status', value)}
@@ -80,7 +105,8 @@ export default function VariationsForm() {
                 </div>
                 <div className={`col-span-2`}>
                     <Label>Shipping Class</Label>
-                    <Select value={variation.shipping_class} onChange={(value) => handleChange('shipping_class', value)} valueField="value"
+                    <Select value={variation.shipping_class} onChange={(value) => handleChange('shipping_class', value)}
+                            valueField="value"
                             options={shippingOptions}/>
                 </div>
                 <div className={`col-span-2`}>

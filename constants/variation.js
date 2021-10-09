@@ -3,6 +3,8 @@ export const VariationSkeleton = {
     sku: '',
     regular_price: '',
     sale_price: '',
+    sale_start_date: '',
+    sale_end_date: '',
     stock_status: '',
     weight: '',
     length: '',
@@ -11,5 +13,5 @@ export const VariationSkeleton = {
     shipping_class: '',
     description: '',
     enabled: false,
-    manage_stock: false
+    manage_stock: false,
 }
