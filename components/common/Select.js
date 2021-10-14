@@ -1,26 +1,43 @@
-import {Fragment, useMemo} from 'react'
+import {Fragment, useMemo, useState} from 'react'
 import {Listbox, Transition} from '@headlessui/react'
 import {CheckIcon, SelectorIcon} from '@heroicons/react/solid'
+import {useController} from "react-hook-form";
 
 /**
  *
  * @param options {Array}
  * @param valueField {string}
  * @param labelField {string}
- * @param onChange {function}
- * @param value {string|number}
+ * @param selected {string|number}
+ * @param name {string}
+ * @param control
+ * @param defaultValue
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Select({options = [], valueField = 'id', labelField = 'label', onChange, value}) {
+export default function Select({options = [], valueField = 'id', labelField = 'label', control, name,defaultValue, props}) {
+    const {
+        field: {onChange},
+        fieldState: {invalid, isTouched, isDirty},
+        formState: {touchedFields, dirtyFields},
+    } = useController({
+        name,
+        control,
+        rules: {...props},
+    });
+    const [selected, setSelected] = useState(defaultValue);
+    const handleChange = (e) => {
+        onChange(e);
+        setSelected(e)
+    }
     const selectedOption = useMemo(() => {
-        if (!value) {
+        if (!selected) {
             return null;
         }
-        return options.find(option => option[valueField] === value)
-    }, [value])
+        return options.find(option => option[valueField] === selected)
+    }, [selected])
     return (
-        <Listbox value={value} onChange={onChange}>
+        <Listbox value={selected} onChange={handleChange}>
             <div className="relative">
                 <Listbox.Button
                     className="relative w-full pl-3 pr-10 border-0 px-3 py-3 placeholder-blueGray-400 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">

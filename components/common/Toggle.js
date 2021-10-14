@@ -7,12 +7,13 @@ import {useController} from "react-hook-form";
  * @param label {string}
  * @param name {string}
  * @param control
+ * @param defaultValue {boolean}
  * @param props
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Toggle({label, name, control, ...props}) {
-    const [checked, setChecked] = useState(false)
+export default function Toggle({label, name, control, defaultValue = false, ...props}) {
+    const [checked, setChecked] = useState(defaultValue)
     const {
         field: {onChange},
         fieldState: {invalid, isTouched, isDirty},

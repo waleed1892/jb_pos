@@ -1,4 +1,3 @@
-import TableDropdown from "../Dropdowns/TableDropdown";
 import React from "react";
 
 /**
@@ -7,19 +6,20 @@ import React from "react";
  * @param columns {array}
  * @param data {array}
  * @param showTitle {boolean}
+ * @param bordered {boolean}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Table({title, columns = [], data, showTitle = false}) {
+export default function Table({title, columns = [], data, showTitle = false, bordered = true}) {
     const renderCell = (item, column) => {
-        if('cell' in column && column.cell instanceof Function){
+        if ('cell' in column && column.cell instanceof Function) {
             return column.cell(item)
         }
         return item[column.accessor]
     }
     return (
         <div
-            className={"relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white"}>
+            className={"relative flex flex-col min-w-0 break-words w-full mb-6 rounded bg-white"}>
             {
                 showTitle &&
                 <div className="rounded-t mb-0 px-4 py-3 border-0">
@@ -32,7 +32,7 @@ export default function Table({title, columns = [], data, showTitle = false}) {
             }
             <div className="block w-full overflow-x-auto">
                 {/* Projects table */}
-                <table className="items-center w-full bg-transparent border-collapse">
+                <table className={`items-center w-full bg-transparent border-collapse`}>
                     <thead>
                     <tr>
                         {
@@ -40,7 +40,7 @@ export default function Table({title, columns = [], data, showTitle = false}) {
 
                                 <th key={columnIndex}
                                     className={
-                                        "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"}
+                                        "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-bold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"}
                                 >
                                     {column.header}
                                 </th>
@@ -54,8 +54,8 @@ export default function Table({title, columns = [], data, showTitle = false}) {
                             <tr key={item.id}>
                                 {
                                     columns.map(column =>
-                                        <td key={item.id}
-                                            className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                                        <td key={`${column.accessor}_${item.id}`}
+                                            className={`px-6 align-middle text-xs whitespace-nowrap p-4 text-left ${bordered && 'border border-gray-100'}`}>
                                             {renderCell(item, column)}
                                         </td>)
                                 }

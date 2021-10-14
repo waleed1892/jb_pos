@@ -1,4 +1,5 @@
-export const productData = {
+export const productSkeleton = {
     name_en: '',
-    name_ar: ''
+    name_ar: '',
+    variations: []
 }

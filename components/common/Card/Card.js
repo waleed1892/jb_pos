@@ -1,3 +1,11 @@
+/**
+ *
+ * @param title {string}
+ * @param actions {JSX.Element}
+ * @param children
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export default function Card({title, actions, children}) {
     return (
         <div className="bg-white shadow-lg rounded">

@@ -1,59 +1,110 @@
-import Label from "../common/Label";
-import Input from "../common/Input";
-import {VariationSkeleton} from "../../constants/variation";
-import {useMemo, useState} from "react";
-import Toggle from "../common/Toggle";
-import Textarea from "../common/Textarea";
-import Select from "../common/Select";
-import FileUpload from "../common/FileUpload";
+import {useEffect, useState} from "react";
+import {useForm} from "react-hook-form";
+import FileUpload from "components/common/FileUpload";
+import Toggle from "components/common/Toggle";
+import Select from "components/common/Select";
+import Textarea from "components/common/Textarea";
+import Label from "components/common/Label";
+import Input from "components/common/Input";
+import {shippingOptions, stockOptions, variationSkeleton} from "constants/variation";
+import jsbarcode from "jsbarcode";
+import {random} from "lodash";
 
-export default function VariationsForm() {
-    const [variation, setVariation] = useState({...VariationSkeleton});
+/**
+ *
+ * @param updateVariation
+ * @param variation
+ * @param formType {string}
+ * @param onFormSubmit
+ * @returns {JSX.Element}
+ * @constructor
+ */
+export default function VariationsForm({updateVariation, variation = {}, formType = 'add', onFormSubmit = undefined}) {
     const [showScheduleFields, setShowScheduleFields] = useState(false);
-    const handleInputChange = (e, field) => {
-        const {value} = e.target;
-        setVariation((state) => ({
-            ...state,
-            [field]: value
-        }))
+    const {register, handleSubmit, control, setValue} = useForm({
+        defaultValues: {...variationSkeleton}
+    });
+    const rng = (length) => {
+        let out = '';
+        for (let i = 0; i < length; i++) {
+            out += random(0, 9, false).toString()
+        }
+        return out;
     }
-    const handleChange = (field, value) => {
-        setVariation((state) => ({
-            ...state,
-            [field]: value
-        }))
+    useEffect(() => {
+        if (formType === 'edit') {
+            Object.keys(variation).forEach(field => {
+                setValue(field, variation[field])
+            })
+            if (variation.ean_13) {
+                generateBarcode(variation.ean_13)
+            }
+        }
+    }, []);
+
+    const onSubmit = (data) => {
+        if (formType === 'edit') {
+            updateVariation(data)
+        }
+        onFormSubmit()
+    }
+    const generate5Code = () => {
+        const number = rng(5);
+        setValue('code_five', number)
+    }
+    const generateEan13 = () => {
+        const number = rng(12);
+        generateBarcode(number)
+        setValue('ean_13', number)
     }
 
-    const stockOptions = useMemo(() => [
-        {label: 'In Stock', value: 'in_stock'},
-        {label: 'Out of Stock', value: 'out_of_stock'},
-        {label: 'On Backorder', value: 'on_backorder'},
-    ], [])
-
-    const shippingOptions = useMemo(() => [
-        {label: 'Same as parent', value: 'same_as_parent'},
-    ], [])
+    const generateBarcode = (data) => {
+        jsbarcode('#barcode', data, {
+            format: 'EAN13'
+        })
+    }
     return (
-        <form action="">
+        <form encType={`multipart/form-data`} method={`post`} onSubmit={handleSubmit(onSubmit)}>
             <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
-                <div>
-                    <FileUpload label="Upload Image"/>
-                </div>
-                <div>
-                    <Label forEl="sku">SKU</Label>
-                    <Input id="sku" name="sku" value={variation.sku} onChange={(e) => handleInputChange(e, 'sku')}/>
+                <div className={`col-span-2 flex gap-x-8`}>
+                    <div className={`w-2/12`}>
+                        <FileUpload name='image' control={control} label="Upload Image"/>
+                    </div>
+                    <div className={`w-6/12`}>
+                        <Label forEl="sku">SKU</Label>
+                        <Input name="sku" register={register}/>
+                    </div>
+                    <div className={`w-4/12`}>
+                        <div>
+                            <Label>EAN-13</Label>
+                            <a onClick={generateEan13}
+                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>generate</a>
+                            <img id='barcode'/>
+                            <Input type="hidden" name="ean_13" register={register}/>
+                        </div>
+                        <div>
+                            <Label>Random Code</Label>
+                            <a onClick={generate5Code}
+                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>generate</a>
+                            <Input readOnly={true} name="code_five" register={register}/>
+                        </div>
+                    </div>
                 </div>
                 <div
                     className={`col-span-2 flex items-center justify-start border-t border-b border-blueGray-200 py-2 gap-x-6`}>
-                    <Toggle value={variation.enabled} onChange={(value) => handleChange('enabled', value)}
+                    <Toggle control={control}
+                            defaultValue={true}
+                            name="enabled"
                             label="Enabled"/>
-                    <Toggle value={variation.manage_stock} onChange={(value) => handleChange('manage_stock', value)}
+                    <Toggle control={control}
+                            name="manage_stock"
                             label="Manage Stock?"/>
                 </div>
                 <div>
                     <Label>Regular Price (AED)</Label>
-                    <Input value={variation.regular_price} type="number"
-                           onChange={(e) => handleInputChange(e, 'regular_price')}
+                    <Input type="number"
+                           name="regular_price"
+                           register={register}
                            placeholder="variation price (required)"/>
                 </div>
                 <div>
@@ -66,53 +117,60 @@ export default function VariationsForm() {
                             <a onClick={() => setShowScheduleFields(true)}
                                className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>Schedule</a>
                     }
-                    <Input value={variation.sale_price} onChange={(e) => handleInputChange(e, 'sale_price')}/>
+                    <Input name="sale_price" register={register}/>
                 </div>
                 {
                     showScheduleFields &&
                     <>
                         <div>
                             <Label>Sale Start Date</Label>
-                            <Input value={variation.sale_start_date} type="date"
-                                   onChange={(e) => handleInputChange(e, 'sale_start_date')}
+                            <Input name="sale_start_date" type="date" register={register}
                                    placeholder="From...YYYY/MMD/DD"/>
                         </div>
                         <div>
                             <Label>Sale End Date</Label>
-                            <Input value={variation.sale_end_date} type="date"
-                                   onChange={(e) => handleInputChange(e, 'sale_end_date')}
+                            <Input type="date" register={register} name="sale_end_date"
                                    placeholder="To...YYYY/MMD/DD"/>
                         </div>
                     </>
                 }
                 <div className={`col-span-2`}>
                     <Label>Stock Status</Label>
-                    <Select value={variation.stock_status} onChange={(value) => handleChange('stock_status', value)}
+                    <Select control={control}
+                            name="stock_status"
+                            defaultValue={'in_stock'}
                             options={stockOptions}
                             valueField="value"/>
                 </div>
                 <div>
                     <Label>Weight (kg)</Label>
-                    <Input onChange={(e) => handleInputChange(e, 'weight')}/>
+                    <Input name="weight" register={register}/>
                 </div>
                 <div>
                     <Label>Dimensions (L*W*H) (cm)</Label>
                     <div className={`flex items-center justify-start gap-x-2`}>
-                        <Input onChange={(e) => handleInputChange(e, 'length')} placeholder="Length"/>
-                        <Input onChange={(e) => handleInputChange(e, 'width')} placeholder="Width"/>
-                        <Input onChange={(e) => handleInputChange(e, 'height')} placeholder="Height"/>
+                        <Input name="length" register={register} placeholder="Length"/>
+                        <Input name="width" register={register} placeholder="Width"/>
+                        <Input name="height" register={register} placeholder="Height"/>
                     </div>
                 </div>
                 <div className={`col-span-2`}>
                     <Label>Shipping Class</Label>
-                    <Select value={variation.shipping_class} onChange={(value) => handleChange('shipping_class', value)}
-                            valueField="value"
-                            options={shippingOptions}/>
+                    <Select control={control}
+                            name="shipping_class"
+                            defaultValue={'same_as_parent'}
+                            options={shippingOptions}
+                            valueField="value"/>
                 </div>
                 <div className={`col-span-2`}>
                     <Label>Description</Label>
-                    <Textarea onChange={(e) => handleInputChange(e, 'description')}/>
+                    <Textarea name="description" register={register}/>
                 </div>
+            </div>
+            <div className={`mt-4 text-right`}>
+                <button
+                    className={`bg-emerald-500 text-white active:bg-emerald-600 hover:bg-emerald-600 font-bold uppercase text-sm px-4 py-2 rounded shadow outline-none focus:outline-none ease-linear transition-all duration-150`}>Save
+                </button>
             </div>
         </form>
     )
