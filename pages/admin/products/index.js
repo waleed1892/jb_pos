@@ -12,15 +12,14 @@ import {useState} from "react";
 export default function Index() {
     const router = useRouter()
     const [page, setPage] = useState(1)
-    const {data: products, isLoading} = useQuery(['products', page], () => getProducts(page), {keepPreviousData: true})
-    console.log(isLoading)
+    const {data: products, isFetching} = useQuery(['products', page], () => getProducts(page), {keepPreviousData: true})
     return (
         <Card title="Products" actions={
             <>
                 <CardAction onClick={() => router.push('/admin/products/add')}>Add New</CardAction>
             </>
         }>
-            <Table data={products.data} columns={productColumns}/>
+            <Table isFetching={isFetching} data={products.data} columns={productColumns}/>
             {
                 products.meta.last_page > 1 && <Pagination onPageChange={(page) => setPage(page)} meta={products.meta}/>
             }
