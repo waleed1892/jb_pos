@@ -66,7 +66,7 @@ export default function Modal({isOpen, close, title, children, size}) {
                                 <Dialog.Title as="h3"
                                               className="text-base px-4 py-2 text-left font-semibold leading-6 text-gray-900 border-b border-gray-200">{title}</Dialog.Title>
                             }
-                            <div className={`p-4`}>
+                            <div className={`p-4 max-h-860-px overflow-auto`}>
                                 {children}
                             </div>
                         </div>

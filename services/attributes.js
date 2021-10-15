@@ -1,7 +1,7 @@
 import {get, post} from "lib/axios";
 
-export const getAttributes = async () => {
-    return (await get(`attribute`)).data
+export const getAttributes = async (page) => {
+    return (await get(`attribute?page=${page}`)).data
 }
 
 export const saveAttribute = (data) => {

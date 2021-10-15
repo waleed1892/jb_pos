@@ -9,7 +9,35 @@ import Input from "components/common/Input";
 import {shippingOptions, stockOptions, variationSkeleton} from "constants/variation";
 import jsbarcode from "jsbarcode";
 import {random} from "lodash";
+import * as yup from "yup";
+import {yupResolver} from '@hookform/resolvers/yup';
+import Errors from "components/common/errors";
 
+const schema = yup.object({
+    img: yup.lazy(value => value ? yup.object().shape({
+        name: yup.string()
+    }) : yup.string()),
+    sku: yup.string(),
+    regular_price: yup.lazy(value => value !== '' ? yup.number().typeError('regular price must be a number').positive().label('regular price') : yup.string()),
+    sale_price: yup.lazy(value => (value !== '') ? yup.number()
+        .when('regular_price', (val, schema) => {
+            return val ? schema.lessThan(val) : schema
+        })
+        .typeError('regular price must be a number').positive().label('sale price') : yup.string()),
+    sale_start_date: '',
+    sale_end_date: '',
+    stock_status: yup.string(),
+    weight: yup.lazy(value => value !== '' ? yup.number().typeError('weight must be a number').positive() : yup.string()),
+    length: yup.lazy(value => value !== '' ? yup.number().typeError('length must be a number').positive() : yup.string()),
+    width: yup.lazy(value => value !== '' ? yup.number().typeError('width must be a number').positive() : yup.string()),
+    height: yup.lazy(value => value !== '' ? yup.number().typeError('height must be a number').positive() : yup.string()),
+    shipping_class: yup.string(),
+    description: yup.string(),
+    enabled: yup.boolean(),
+    manage_stock: yup.boolean(),
+    code_five: yup.string(),
+    ean_13: yup.string()
+}).required()
 /**
  *
  * @param updateVariation
@@ -21,8 +49,9 @@ import {random} from "lodash";
  */
 export default function VariationsForm({updateVariation, variation = {}, formType = 'add', onFormSubmit = undefined}) {
     const [showScheduleFields, setShowScheduleFields] = useState(false);
-    const {register, handleSubmit, control, setValue} = useForm({
-        defaultValues: {...variationSkeleton}
+    const {register, handleSubmit, control, setValue, formState: {errors}} = useForm({
+        defaultValues: {...variationSkeleton},
+        resolver: yupResolver(schema)
     });
     const rng = (length) => {
         let out = '';
@@ -102,10 +131,11 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                 </div>
                 <div>
                     <Label>Regular Price (AED)</Label>
-                    <Input type="number"
-                           name="regular_price"
-                           register={register}
-                           placeholder="variation price (required)"/>
+                    <Input
+                        name="regular_price"
+                        register={register}
+                        placeholder="variation price"/>
+                    <Errors errors={errors} name="regular_price"/>
                 </div>
                 <div>
                     <Label>Sale Price (AED)</Label>
@@ -118,6 +148,7 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                                className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>Schedule</a>
                     }
                     <Input name="sale_price" register={register}/>
+                    <Errors errors={errors} name="sale_price"/>
                 </div>
                 {
                     showScheduleFields &&
@@ -149,9 +180,18 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                 <div>
                     <Label>Dimensions (L*W*H) (cm)</Label>
                     <div className={`flex items-center justify-start gap-x-2`}>
-                        <Input name="length" register={register} placeholder="Length"/>
-                        <Input name="width" register={register} placeholder="Width"/>
-                        <Input name="height" register={register} placeholder="Height"/>
+                        <div>
+                            <Input name="length" register={register} placeholder="Length"/>
+                            <Errors errors={errors} name="length"/>
+                        </div>
+                        <div>
+                            <Input name="width" register={register} placeholder="Width"/>
+                            <Errors errors={errors} name="width"/>
+                        </div>
+                        <div>
+                            <Input name="height" register={register} placeholder="Height"/>
+                            <Errors errors={errors} name="height"/>
+                        </div>
                     </div>
                 </div>
                 <div className={`col-span-2`}>

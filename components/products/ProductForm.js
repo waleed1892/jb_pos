@@ -13,22 +13,28 @@ import _ from 'lodash';
 import {variationSkeleton} from "constants/variation";
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
 import {useRouter} from "next/router";
-import Errors from "components/common/Errors";
+import Errors from "components/common/errors";
 import {productSkeleton} from "constants/product";
-
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
 const VariationsForm = lazy(() => import('components/variations/VariationsForm'))
-
+const schema = yup.object({
+    name_en: yup.string().required(),
+    name_ar: yup.string().required(),
+}).required();
 export default function ProductForm() {
     const router = useRouter()
     const [variationFormOpen, setVariationFormOpen] = useState(false);
     const [currentVariationIndex, setCurrentVariationIndex] = useState(0);
     const [variations, setVariations] = useState([]);
     const [showARName, setShowARName] = useState(false);
-    const {register, handleSubmit, formState, control, setValue} = useForm({
-        ...productSkeleton
+    const {register, handleSubmit, formState, setValue, control} = useForm({
+        defaultValues: {
+            ...productSkeleton
+        },
+        resolver: yupResolver(schema)
     })
-    // const {fields} = useFieldArray({control, name: "variations"});
     const {errors} = formState
     const mutation = useMutation(saveProduct)
 
@@ -73,7 +79,6 @@ export default function ProductForm() {
         tmpVariations.splice(index, 1)
         setVariations(tmpVariations)
     }
-    // console.log(fields)
     return (
         <>
             <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
@@ -84,14 +89,14 @@ export default function ProductForm() {
                             <Label>Name (AR)</Label>
                             <a onClick={() => setShowARName(false)}
                                className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
-                            <Input name="name_en" required
+                            <Input name="name_en"
                                    register={register}/>
                         </div>
                         <div className={`${!showARName ? '' : 'hidden'}`}>
                             <Label>Name (EN)</Label>
                             <a onClick={() => setShowARName(true)}
                                className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
-                            <Input name="name_ar" required register={register}/>
+                            <Input name="name_ar" register={register}/>
                         </div>
                         <Errors name='name_en' errors={errors}/>
                         <Errors name='name_ar' errors={errors}/>

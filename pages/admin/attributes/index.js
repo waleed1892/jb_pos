@@ -12,7 +12,11 @@ const AttributeForm = lazy(() => import("components/attributes/AttributeForm"));
 
 export default function Index() {
     const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
-    const {data: attributes} = useQuery('attributes', getAttributes);
+    const [page, setPage] = useState(1)
+    const {
+        data: attributes,
+        isFetching
+    } = useQuery(['attributes', page], () => getAttributes(page), {keepPreviousData: true});
     const columns = [
         {
             header: 'Name (EN)',
@@ -30,10 +34,10 @@ export default function Index() {
                     <CardAction onClick={() => setIsAttributeModalOpen(true)}>Add New</CardAction>
                 </>
             }>
-                <Table columns={columns} data={attributes.data}/>
+                <Table isFetching={isFetching} columns={columns} data={attributes.data}/>
                 {
-                    attributes.data.length &&
-                    <Pagination/>
+                    attributes.meta.last_page > 1 &&
+                    <Pagination onPageChange={(page) => setPage(page)} meta={attributes.meta}/>
                 }
             </Card>
             <Modal size="lg" title="Add Attribute" isOpen={isAttributeModalOpen}
@@ -51,7 +55,7 @@ Index.layout = Admin
 
 export async function getStaticProps() {
     const queryClient = new QueryClient()
-    await queryClient.prefetchQuery('attributes', getAttributes)
+    await queryClient.prefetchQuery(['attributes', 1], getAttributes)
     return {
         props: {
             dehydratedState: dehydrate(queryClient)

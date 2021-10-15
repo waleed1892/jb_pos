@@ -1,16 +1,18 @@
 import React from "react";
+import {RefreshIcon} from "@heroicons/react/solid";
 
 /**
  *
  * @param title {string}
  * @param columns {array}
  * @param data {array}
+ * @param isFetching {boolean}
  * @param showTitle {boolean}
  * @param bordered {boolean}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Table({title, columns = [], data, showTitle = false, bordered = true}) {
+export default function Table({title, columns = [], data, showTitle = false, bordered = true, isFetching = false}) {
     const renderCell = (item, column) => {
         if ('cell' in column && column.cell instanceof Function) {
             return column.cell(item)
@@ -28,6 +30,12 @@ export default function Table({title, columns = [], data, showTitle = false, bor
                             <h3 className={"font-semibold text-lg text-blueGray-700"}>{title}</h3>
                         </div>
                     </div>
+                </div>
+            }
+            {
+                isFetching &&
+                <div className={`absolute inset-0 bg-blueGray-200 bg-opacity-40 flex items-center justify-center`}>
+                    <RefreshIcon className={`w-8 h-8 text-indigo-500 text-opacity-80 animate-spin`}/>
                 </div>
             }
             <div className="block w-full overflow-x-auto">

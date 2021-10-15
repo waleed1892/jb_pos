@@ -6,10 +6,14 @@ import Table from "components/common/table";
 import {dehydrate, QueryClient, useQuery} from "react-query";
 import {getProducts} from "services/product";
 import {productColumns} from "components/products/utils";
+import Pagination from "components/common/Pagination";
+import {useState} from "react";
 
 export default function Index() {
     const router = useRouter()
-    const {data: products} = useQuery('products', getProducts)
+    const [page, setPage] = useState(1)
+    const {data: products, isLoading} = useQuery(['products', page], () => getProducts(page), {keepPreviousData: true})
+    console.log(isLoading)
     return (
         <Card title="Products" actions={
             <>
@@ -17,6 +21,9 @@ export default function Index() {
             </>
         }>
             <Table data={products.data} columns={productColumns}/>
+            {
+                products.meta.last_page > 1 && <Pagination onPageChange={(page) => setPage(page)} meta={products.meta}/>
+            }
         </Card>
     )
 }
@@ -25,7 +32,7 @@ Index.layout = Admin
 
 export async function getStaticProps() {
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('products', getProducts)
+    await queryClient.prefetchQuery(['products', 1], getProducts)
     return {
         props: {
             dehydratedState: dehydrate(queryClient)
