@@ -6,7 +6,7 @@ import Toggle from "components/common/Toggle";
 import {useMutation} from "react-query";
 import {useForm} from "react-hook-form";
 import {saveAttribute} from "services/attributes";
-import Errors from "components/common/Errors";
+import Errors from "components/common/errors";
 import {attributeSkeleton} from "constants/attribute";
 
 /**
