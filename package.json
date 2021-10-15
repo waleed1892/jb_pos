@@ -35,7 +35,7 @@
   },
   "scripts": {
     "start": "next start",
-    "build": "run-s build:tailwind-prod build:prod",
+    "build": "run-p build:tailwind-prod build:prod",
     "dev": "next dev",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm run build:tailwind && npm run dev",
     "build:tailwind": "tailwind build styles/index.css -o styles/tailwind.css",
