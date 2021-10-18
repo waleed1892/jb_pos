@@ -14,29 +14,32 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import Errors from "components/common/errors";
 
 const schema = yup.object({
-    img: yup.lazy(value => value ? yup.object().shape({
+    img: yup.object().shape({
         name: yup.string()
-    }) : yup.string()),
-    sku: yup.string(),
-    regular_price: yup.lazy(value => value !== '' ? yup.number().typeError('regular price must be a number').positive().label('regular price') : yup.string()),
-    sale_price: yup.lazy(value => (value !== '') ? yup.number()
+    }).nullable(),
+    sku: yup.string().ensure(),
+    regular_price: yup.string().matches(/^\d*$/, {
+        message: 'regular price must be a number',
+        excludeEmptyString: false
+    }).ensure(),
+    sale_price: yup.lazy(value => value ? yup.number()
         .when('regular_price', (val, schema) => {
             return val ? schema.lessThan(val) : schema
         })
-        .typeError('regular price must be a number').positive().label('sale price') : yup.string()),
+        .typeError('sale price must be a number').positive().label('sale price') : yup.string().ensure()),
     sale_start_date: '',
     sale_end_date: '',
     stock_status: yup.string(),
-    weight: yup.lazy(value => value !== '' ? yup.number().typeError('weight must be a number').positive() : yup.string()),
-    length: yup.lazy(value => value !== '' ? yup.number().typeError('length must be a number').positive() : yup.string()),
-    width: yup.lazy(value => value !== '' ? yup.number().typeError('width must be a number').positive() : yup.string()),
-    height: yup.lazy(value => value !== '' ? yup.number().typeError('height must be a number').positive() : yup.string()),
+    weight: yup.string().matches(/^\d*$/, {message: 'weight must be a number', excludeEmptyString: false}).ensure(),
+    length: yup.string().matches(/^\d*$/, {message: 'length must be a number', excludeEmptyString: false}).ensure(),
+    width: yup.string().matches(/^\d*$/, {message: 'width must be a number', excludeEmptyString: false}).ensure(),
+    height: yup.string().matches(/^\d*$/, {message: 'height must be a number', excludeEmptyString: false}).ensure(),
     shipping_class: yup.string(),
-    description: yup.string(),
+    description: yup.string().ensure(),
     enabled: yup.boolean(),
     manage_stock: yup.boolean(),
-    code_five: yup.string(),
-    ean_13: yup.string()
+    code_five: yup.string().ensure(),
+    ean_13: yup.string().ensure()
 }).required()
 /**
  *
@@ -92,6 +95,7 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
             format: 'EAN13'
         })
     }
+
     return (
         <form encType={`multipart/form-data`} method={`post`} onSubmit={handleSubmit(onSubmit)}>
             <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
@@ -102,6 +106,7 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                     <div className={`w-6/12`}>
                         <Label forEl="sku">SKU</Label>
                         <Input name="sku" register={register}/>
+                        <Errors errors={errors} name="sku"/>
                     </div>
                     <div className={`w-4/12`}>
                         <div>
@@ -122,7 +127,6 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                 <div
                     className={`col-span-2 flex items-center justify-start border-t border-b border-blueGray-200 py-2 gap-x-6`}>
                     <Toggle control={control}
-                            defaultValue={true}
                             name="enabled"
                             label="Enabled"/>
                     <Toggle control={control}
@@ -169,13 +173,13 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                     <Label>Stock Status</Label>
                     <Select control={control}
                             name="stock_status"
-                            defaultValue={'in_stock'}
                             options={stockOptions}
                             valueField="value"/>
                 </div>
                 <div>
                     <Label>Weight (kg)</Label>
                     <Input name="weight" register={register}/>
+                    <Errors errors={errors} name="weight"/>
                 </div>
                 <div>
                     <Label>Dimensions (L*W*H) (cm)</Label>
@@ -198,7 +202,6 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
                     <Label>Shipping Class</Label>
                     <Select control={control}
                             name="shipping_class"
-                            defaultValue={'same_as_parent'}
                             options={shippingOptions}
                             valueField="value"/>
                 </div>

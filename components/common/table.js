@@ -9,10 +9,13 @@ import {RefreshIcon} from "@heroicons/react/solid";
  * @param isFetching {boolean}
  * @param showTitle {boolean}
  * @param bordered {boolean}
+ * @param actions {function}
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Table({title, columns = [], data, showTitle = false, bordered = true, isFetching = false}) {
+export default function Table(
+    {title, columns = [], data, showTitle = false, bordered = true, isFetching = false, actions}
+) {
     const renderCell = (item, column) => {
         if ('cell' in column && column.cell instanceof Function) {
             return column.cell(item)
@@ -40,7 +43,8 @@ export default function Table({title, columns = [], data, showTitle = false, bor
             }
             <div className="block w-full overflow-x-auto">
                 {/* Projects table */}
-                <table className={`items-center w-full bg-transparent border-collapse`}>
+                <table
+                    className={`items-center w-full bg-transparent border-collapse ${bordered && 'border border-gray-100'}`}>
                     <thead>
                     <tr>
                         {
@@ -54,12 +58,13 @@ export default function Table({title, columns = [], data, showTitle = false, bor
                                 </th>
                             )
                         }
+                        <th className={`px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-bold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100`}>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {
-                        data.map(item =>
-                            <tr key={item.id}>
+                        data.map((item, itemIndex) =>
+                            <tr key={item.id ?? itemIndex}>
                                 {
                                     columns.map(column =>
                                         <td key={`${column.accessor}_${item.id}`}
@@ -67,8 +72,22 @@ export default function Table({title, columns = [], data, showTitle = false, bor
                                             {renderCell(item, column)}
                                         </td>)
                                 }
+                                <td className={`px-6 align-middle text-xs whitespace-nowrap p-4 text-left ${bordered && 'border border-gray-100'}`}>
+                                    {
+                                        actions && actions(itemIndex)
+                                    }
+                                </td>
                             </tr>
                         )
+                    }
+                    {
+                        !data.length &&
+                        <tr>
+                            <td colSpan={3}
+                                className={`px-6 align-middle text-sm whitespace-nowrap p-4 ${bordered && 'border border-gray-100'} text-center font-semibold`}>No
+                                Records
+                            </td>
+                        </tr>
                     }
                     </tbody>
                 </table>

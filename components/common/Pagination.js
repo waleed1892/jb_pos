@@ -12,7 +12,7 @@ const Pagination = ({meta, onPageChange}) => {
     const max_pages = 10;
     const pages = useMemo(() => {
         return Array.from(Array(last_page), (_, i) => i + 1);
-    }, [])
+    }, [last_page])
     // const {active, total, step, onClickHandler} = props;
     //
     // const showingNumbers = step * 2 + 1;

@@ -1,6 +1,7 @@
 export const attributeSkeleton = {
-    name: "",
+    name_en: "",
+    name_ar: "",
     description: "",
-    used_in_variations: false,
+    use_for_variation: false,
     visible_on_product_page: 1
 }

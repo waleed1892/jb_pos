@@ -1,12 +1,12 @@
 import Label from "components/common/Label";
 import Input from "components/common/Input";
-import React, {useState, lazy, Suspense} from "react";
+import React, {useState, lazy, Suspense, useEffect} from "react";
 import CardAction from "components/common/Card/CardAction";
 import Modal from "components/common/Modal";
 import Alert from "components/common/alert";
 import {useForm, useFieldArray} from "react-hook-form";
 import {useMutation, useQuery} from "react-query";
-import {saveProduct} from "services/product";
+import {saveProduct, updateProduct} from "services/product";
 import {getAllAttributes} from "services/attributes";
 import 'lodash.product';
 import _ from 'lodash';
@@ -22,13 +22,38 @@ const VariationsForm = lazy(() => import('components/variations/VariationsForm')
 const schema = yup.object({
     name_en: yup.string().required(),
     name_ar: yup.string().required(),
+    variations: yup.array()
 }).required();
-export default function ProductForm() {
+/**
+ *
+ * @param formType {string}
+ * @param product {object}
+ * @returns {JSX.Element}
+ * @constructor
+ */
+export default function ProductForm({formType = 'add', product = {}}) {
     const router = useRouter()
     const [variationFormOpen, setVariationFormOpen] = useState(false);
     const [currentVariationIndex, setCurrentVariationIndex] = useState(0);
     const [variations, setVariations] = useState([]);
     const [showARName, setShowARName] = useState(false);
+    useEffect(() => {
+        if (formType === 'edit') {
+            Object.keys(product).forEach(fieldKey => {
+                setValue(fieldKey, product[fieldKey])
+            })
+            setValue('_method', 'put')
+            const tmpVariations = product.variations.map(variation => {
+                variation.title = variation.attributes.map(attribute => attribute.value.name.charAt(0).toUpperCase() + attribute.value.name.slice(1)).join(', ')
+                variation.attributes = variation.attributes.map(attribute => ({
+                    attribute_id: attribute.id,
+                    value_id: attribute.value.id
+                }))
+                return variation
+            })
+            setVariations(tmpVariations)
+        }
+    }, [])
     const {register, handleSubmit, formState, setValue, control} = useForm({
         defaultValues: {
             ...productSkeleton
@@ -36,20 +61,28 @@ export default function ProductForm() {
         resolver: yupResolver(schema)
     })
     const {errors} = formState
-    const mutation = useMutation(saveProduct)
+    const saveMutation = useMutation(saveProduct)
+    const updateMutation = useMutation(updateProduct)
 
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
-        const res = (await mutation.mutateAsync(data)).data
+        if (formType === 'edit') {
+            await updateMutation.mutateAsync({id: product.id, data})
+        } else if (formType === 'add') {
+            await saveMutation.mutateAsync(data)
+        }
+
         await router.push('/admin/products')
     }
     const handleVariations = (variation) => {
+        console.log(variation)
         const tmpVariations = [...variations];
         tmpVariations.splice(currentVariationIndex, 1, variation)
         setVariations(tmpVariations)
+        setValue('variations', tmpVariations)
     }
     const createVariations = () => {
-        const attributesWithValues = attributes.data.filter(attribute => attribute.values.length).map(attribute => {
+        const attributesWithValues = attributes.data.map(attribute => {
             return attribute.values.map(value => {
                 return {...value, attribute_id: attribute.id}
             })
@@ -58,7 +91,7 @@ export default function ProductForm() {
         const tmpVariations = [];
         attributeVariations.forEach(attributeVariation => {
             const tmpObj = {...variationSkeleton};
-            tmpObj.title = attributeVariation.map(item => item.value.charAt(0).toUpperCase() + item.value.slice(1)).join(', ')
+            tmpObj.title = attributeVariation.map(item => item.name.charAt(0).toUpperCase() + item.name.slice(1)).join(', ')
             tmpObj.attributes = attributeVariation.map(item => {
                 return {
                     attribute_id: item.attribute_id,
@@ -78,6 +111,7 @@ export default function ProductForm() {
         const tmpVariations = [...variations];
         tmpVariations.splice(index, 1)
         setVariations(tmpVariations)
+        setValue('variations', tmpVariations)
     }
     return (
         <>
@@ -107,7 +141,7 @@ export default function ProductForm() {
                     <div className="flex items-center justify-between">
                         <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">Variations</h6>
                         {
-                            attributes.data.length &&
+                            attributes.data.length > 0 &&
                             <div className="flex items-center gap-x-2">
                                 <CardAction onClick={createVariations}>Create Variations form all
                                     attributes</CardAction>

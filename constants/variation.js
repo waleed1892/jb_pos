@@ -1,5 +1,5 @@
 export const variationSkeleton = {
-    img: '',
+    img: null,
     sku: '',
     regular_price: '',
     sale_price: '',

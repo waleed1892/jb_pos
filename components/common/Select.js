@@ -11,18 +11,17 @@ import {useController} from "react-hook-form";
  * @param selected {string|number}
  * @param name {string}
  * @param control
- * @param defaultValue
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Select({options = [], valueField = 'id', labelField = 'label', control, name, defaultValue}) {
+export default function Select({options = [], valueField = 'id', labelField = 'label', control, name}) {
     const {
-        field: {onChange},
+        field: {onChange, value},
     } = useController({
         name,
         control,
     });
-    const [selected, setSelected] = useState(defaultValue);
+    const [selected, setSelected] = useState(value);
     const handleChange = (e) => {
         onChange(e);
         setSelected(e)
