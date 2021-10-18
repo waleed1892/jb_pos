@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Switch} from "@headlessui/react";
 import {useController} from "react-hook-form";
 
@@ -18,6 +18,9 @@ export default function Toggle({label, name, control}) {
         control,
     });
     const [checked, setChecked] = useState(value)
+    useEffect(() => {
+        setChecked(value)
+    }, [value])
     const handleChange = (e) => {
         onChange(e);
         setChecked(e)
