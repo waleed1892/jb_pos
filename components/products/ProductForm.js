@@ -123,14 +123,14 @@ export default function ProductForm({formType = 'add', product = {}}) {
                             <Label>Name (AR)</Label>
                             <a onClick={() => setShowARName(false)}
                                className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
-                            <Input name="name_en"
+                            <Input name="name_ar"
                                    register={register}/>
                         </div>
                         <div className={`${!showARName ? '' : 'hidden'}`}>
                             <Label>Name (EN)</Label>
                             <a onClick={() => setShowARName(true)}
                                className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
-                            <Input name="name_ar" register={register}/>
+                            <Input name="name_en" register={register}/>
                         </div>
                         <Errors name='name_en' errors={errors}/>
                         <Errors name='name_ar' errors={errors}/>
