@@ -15,6 +15,7 @@ import {valueColumns} from "components/attributes/utils";
 import Modal from "components/common/Modal";
 import AttributeValueForm from "components/attributes/AttributeValueForm";
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
+import Button from "components/common/button";
 
 const schema = yup.object({
     name_en: yup.string().required(),
@@ -134,9 +135,7 @@ export default function AttributeForm({formType = 'add', attribute = {}, onSubmi
                     </div>
                 </div>
                 <div className={`flex items-center justify-end`}>
-                    <button
-                        className={`bg-emerald-500 text-white active:bg-emerald-600 hover:bg-emerald-600 font-bold uppercase text-sm px-4 py-2 rounded shadow outline-none focus:outline-none ease-linear transition-all duration-150`}>Save
-                    </button>
+                    <Button variant="success">Save</Button>
                 </div>
             </form>
             <Modal size="md" title="Add Value" isOpen={openAttributeValueForm}

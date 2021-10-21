@@ -1,5 +1,7 @@
 export const productSkeleton = {
     name_en: '',
     name_ar: '',
-    variations: []
+    type: 'simple',
+    variations: [],
+    selectedAttributesIds: []
 }

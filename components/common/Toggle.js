@@ -7,10 +7,11 @@ import {useController} from "react-hook-form";
  * @param label {string}
  * @param name {string}
  * @param control
+ * @param onToggle
  * @returns {JSX.Element}
  * @constructor
  */
-export default function Toggle({label, name, control}) {
+export default function Toggle({label, name, control,onToggle=() => {}}) {
     const {
         field: {onChange, value},
     } = useController({
@@ -24,6 +25,7 @@ export default function Toggle({label, name, control}) {
     const handleChange = (e) => {
         onChange(e);
         setChecked(e)
+        onToggle()
     }
     return (
         <Switch.Group>
@@ -42,7 +44,7 @@ export default function Toggle({label, name, control}) {
                         } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
                     />
                 </Switch>
-                <Switch.Label className={`ml-2`}>{label}</Switch.Label>
+                <Switch.Label className={`ml-2 font-bold text-xs uppercase`}>{label}</Switch.Label>
             </div>
         </Switch.Group>
     )

@@ -6,41 +6,14 @@ import Select from "components/common/Select";
 import Textarea from "components/common/Textarea";
 import Label from "components/common/Label";
 import Input from "components/common/Input";
-import {shippingOptions, stockOptions, variationSkeleton} from "constants/variation";
-import jsbarcode from "jsbarcode";
-import {random} from "lodash";
+import {variationSkeleton} from "constants/variation";
 import * as yup from "yup";
 import {yupResolver} from '@hookform/resolvers/yup';
 import Errors from "components/common/errors";
+import {generate5Code, generateBarcode, generateEan13, shippingOptions, stockOptions} from "components/products/utils";
+import {productValidation} from "validations/product";
 
-const schema = yup.object({
-    img: yup.object().shape({
-        name: yup.string()
-    }).nullable(),
-    sku: yup.string().ensure(),
-    regular_price: yup.string().matches(/^\d*$/, {
-        message: 'regular price must be a number',
-        excludeEmptyString: false
-    }).ensure(),
-    sale_price: yup.lazy(value => value ? yup.number()
-        .when('regular_price', (val, schema) => {
-            return val ? schema.lessThan(val) : schema
-        })
-        .typeError('sale price must be a number').positive().label('sale price') : yup.string().ensure()),
-    sale_start_date: '',
-    sale_end_date: '',
-    stock_status: yup.string(),
-    weight: yup.string().matches(/^\d*$/, {message: 'weight must be a number', excludeEmptyString: false}).ensure(),
-    length: yup.string().matches(/^\d*$/, {message: 'length must be a number', excludeEmptyString: false}).ensure(),
-    width: yup.string().matches(/^\d*$/, {message: 'width must be a number', excludeEmptyString: false}).ensure(),
-    height: yup.string().matches(/^\d*$/, {message: 'height must be a number', excludeEmptyString: false}).ensure(),
-    shipping_class: yup.string(),
-    description: yup.string().ensure(),
-    enabled: yup.boolean(),
-    manage_stock: yup.boolean(),
-    code_five: yup.string().ensure(),
-    ean_13: yup.string().ensure()
-}).required()
+const schema = productValidation
 /**
  *
  * @param updateVariation
@@ -56,13 +29,7 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
         defaultValues: {...variationSkeleton},
         resolver: yupResolver(schema)
     });
-    const rng = (length) => {
-        let out = '';
-        for (let i = 0; i < length; i++) {
-            out += random(0, 9, false).toString()
-        }
-        return out;
-    }
+
     useEffect(() => {
         if (formType === 'edit') {
             Object.keys(variation).forEach(field => {
@@ -79,21 +46,6 @@ export default function VariationsForm({updateVariation, variation = {}, formTyp
             updateVariation(data)
         }
         onFormSubmit()
-    }
-    const generate5Code = () => {
-        const number = rng(5);
-        setValue('code_five', number)
-    }
-    const generateEan13 = () => {
-        const number = rng(12);
-        generateBarcode(number)
-        setValue('ean_13', number)
-    }
-
-    const generateBarcode = (data) => {
-        jsbarcode('#barcode', data, {
-            format: 'EAN13'
-        })
     }
 
     return (

@@ -13,7 +13,7 @@ const AttributeForm = lazy(() => import("components/attributes/AttributeForm"));
 
 export default function Index() {
     const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
-    const [currentEditId, setCurrentEditId] = useState(null)
+    const [currentEditableIndex, setCurrentEditableIndex] = useState(null)
     const [formType, setFormType] = useState('add')
     const [page, setPage] = useState(1)
     const {
@@ -33,13 +33,13 @@ export default function Index() {
     ]
     const editAttribute = (index) => {
         setFormType('edit')
-        setCurrentEditId(index)
+        setCurrentEditableIndex(index)
         setIsAttributeModalOpen(true)
     }
 
     const addAttribute = () => {
         setFormType('add')
-        setCurrentEditId(null)
+        setCurrentEditableIndex(null)
         setIsAttributeModalOpen(true)
     }
 
@@ -76,10 +76,11 @@ export default function Index() {
                     <Pagination onPageChange={(page) => setPage(page)} meta={attributes.meta}/>
                 }
             </Card>
-            <Modal size="lg" title="Add Attribute" isOpen={isAttributeModalOpen}
+            <Modal size="lg" title={attributes.data[currentEditableIndex]?.name_en ?? 'Add Attribute'}
+                   isOpen={isAttributeModalOpen}
                    close={() => setIsAttributeModalOpen(false)}>
                 <Suspense fallback={<div>loading...</div>}>
-                    <AttributeForm attribute={attributes.data[currentEditId]} formType={formType}
+                    <AttributeForm attribute={attributes.data[currentEditableIndex]} formType={formType}
                                    onSubmit={() => setIsAttributeModalOpen(false)}/>
                 </Suspense>
             </Modal>

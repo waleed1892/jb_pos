@@ -83,7 +83,7 @@ export default function Table(
                     {
                         !data.length &&
                         <tr>
-                            <td colSpan={3}
+                            <td colSpan={columns.length + 1}
                                 className={`px-6 align-middle text-sm whitespace-nowrap p-4 ${bordered && 'border border-gray-100'} text-center font-semibold`}>No
                                 Records
                             </td>
