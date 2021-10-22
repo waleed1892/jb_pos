@@ -12,7 +12,7 @@ export const variationSkeleton = {
     height: '',
     shipping_class: 'same_as_parent',
     description: '',
-    enabled: false,
+    enabled: true,
     manage_stock: false,
     code_five: '',
     ean_13: ''

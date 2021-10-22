@@ -1,7 +1,7 @@
 import Label from "components/common/Label";
 import Input from "components/common/Input";
-import React, {useState, useEffect, Suspense, lazy} from "react";
-import {useForm} from "react-hook-form";
+import React, {useState, useEffect} from "react";
+import {useForm, FormProvider} from "react-hook-form";
 import {useMutation, useQuery} from "react-query";
 import {saveProduct, updateProduct} from "services/product";
 import {getAllAttributes} from "services/attributes";
@@ -11,20 +11,26 @@ import {productSkeleton} from "constants/product";
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import Select from "components/common/Select";
-import {productTypes,} from "components/products/utils";
+import {generateBarcode, productTypes,} from "components/products/utils";
 import {productValidation} from "validations/product";
 import Button from "components/common/button";
 import Simple from "components/products/simple";
+import dynamic from "next/dynamic";
+import {cloneDeep} from "lodash";
 
-const Variable = lazy(() => import("components/products/variable"));
+const Variable = dynamic(() => import("components/products/variable"));
 
 
 const schema = yup.object({
     name_en: yup.string().required(),
     name_ar: yup.string().required(),
     type: yup.string().required(),
-    simple_product: productValidation,
-    variations: yup.array()
+    simple_product: yup.object().when('type', (val, schema) => {
+        return val === 'simple' ? productValidation : schema
+    }),
+    variations: yup.array().when('type', (val, schema) => {
+        return val === 'variable' ? schema.of(productValidation) : schema
+    })
 });
 /**
  *
@@ -37,32 +43,42 @@ export default function ProductForm({formType = 'add', product = {}}) {
     const router = useRouter()
     const [productType, setProductType] = useState(productSkeleton.type);
     const [showARName, setShowARName] = useState(false);
+    const methods = useForm({
+        defaultValues: {
+            ...productSkeleton
+        },
+        resolver: yupResolver(schema),
+    })
 
+    const {formState, unregister, handleSubmit, control, setValue, register} = methods;
+
+    const {errors} = formState
     useEffect(() => {
         if (formType === 'edit') {
             Object.keys(product).forEach(fieldKey => {
                 setValue(fieldKey, product[fieldKey])
             })
             setValue('_method', 'put')
-            // const tmpVariations = product.variations.map(variation => {
-            //     variation.title = variation.attributes.map(attribute => attribute.value.name.charAt(0).toUpperCase() + attribute.value.name.slice(1)).join(', ')
-            //     variation.attributes = variation.attributes.map(attribute => ({
-            //         attribute_id: attribute.id,
-            //         value_id: attribute.value.id
-            //     }))
-            //     return variation
-            // })
-            // setVariations(tmpVariations)
+            if (product.type === 'simple') {
+                generateBarcode('barcode', product.simple_product.ean_13)
+                setProductType(product.type)
+            } else if (product.type === 'variable') {
+                setProductType(product.type)
+                const productVariations = cloneDeep(product.variations)
+                const tmpVariations = productVariations.map(variation => {
+                    variation.title = variation.attributes.map(attribute => attribute.value.name.charAt(0).toUpperCase() + attribute.value.name.slice(1)).join(', ')
+                    variation.attributes = variation.attributes.map(attribute => ({
+                        attribute_id: attribute.id,
+                        value_id: attribute.value.id
+                    }))
+                    return variation
+                })
+                setValue('variations', tmpVariations)
+                console.log(tmpVariations)
+            }
         }
     }, [])
-    const {register, handleSubmit, formState, setValue, control, getValues} = useForm({
-        defaultValues: {
-            ...productSkeleton
-        },
-        resolver: yupResolver(schema)
-    })
 
-    const {errors} = formState
     const saveMutation = useMutation(saveProduct)
     const updateMutation = useMutation(updateProduct)
 
@@ -76,54 +92,67 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
         await router.push('/admin/products')
     }
-
-
+    const handleType = (val) => {
+        setProductType(val)
+        if (val === 'variable') {
+            unregister('simple_product',
+                {keepValue: true, keepError: true}
+            )
+        } else if (val === 'simple') {
+            unregister(['variations', 'selectedAttributes', 'selectedAttributesIds'], {
+                keepValue: true,
+                keepError: true
+            })
+        }
+    }
     return (
         <>
-            <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
-                    <div className={`grid grid-cols-2 gap-x-4`}>
-                        <div>
-                            <div className={`${showARName ? '' : 'hidden'}`}>
-                                <Label>Name (AR)</Label>
-                                <a onClick={() => setShowARName(false)}
-                                   className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
-                                <Input name="name_ar"
-                                       register={register}/>
+            <FormProvider {...methods}>
+                <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
+                        <div className={`grid grid-cols-2 gap-x-4`}>
+                            <div>
+                                <div className={`${showARName ? '' : 'hidden'}`}>
+                                    <Label>Name (AR)</Label>
+                                    <a onClick={() => setShowARName(false)}
+                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
+                                    <Input name="name_ar"
+                                           register={register}/>
+                                </div>
+                                <div className={`${!showARName ? '' : 'hidden'}`}>
+                                    <Label>Name (EN)</Label>
+                                    <a onClick={() => setShowARName(true)}
+                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
+                                    <Input name="name_en" register={register}/>
+                                </div>
+                                <Errors name='name_en' errors={errors}/>
+                                <Errors name='name_ar' errors={errors}/>
                             </div>
-                            <div className={`${!showARName ? '' : 'hidden'}`}>
-                                <Label>Name (EN)</Label>
-                                <a onClick={() => setShowARName(true)}
-                                   className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
-                                <Input name="name_en" register={register}/>
-                            </div>
-                            <Errors name='name_en' errors={errors}/>
-                            <Errors name='name_ar' errors={errors}/>
-                        </div>
-                        <div>
-                            <Label>Product Type</Label>
-                            <Select onSelect={(val) => setProductType(val)} options={productTypes} control={control}
-                                    name='type'/>
+                            {
+                                formType === 'add' &&
+                                <div>
+                                    <Label>Product Type</Label>
+                                    <Select onSelect={handleType} options={productTypes} control={control}
+                                            name='type'/>
+                                </div>
+                            }
                         </div>
                     </div>
-                </div>
 
-                {
-                    productType === 'variable' ?
-                        <>
-                            <hr className="mt-6 border-b-1 border-blueGray-300"/>
-                            <Suspense fallback={<div>Loading...</div>}>
-                                <Variable getValues={getValues} setValue={setValue} control={control}
-                                          attributes={attributes}/>
-                            </Suspense>
-                        </>
-                        : <Simple register={register} control={control} errors={errors}/>
-                }
-                <div className={`mt-8 text-right`}>
-                    <Button>Save</Button>
-                </div>
-            </form>
+                    {
+                        productType === 'variable' ?
+                            <>
+                                <hr className="mt-6 border-b-1 border-blueGray-300"/>
+                                <Variable attributes={attributes}/>
+                            </>
+                            : <Simple/>
+                    }
+                    <div className={`mt-8 text-right`}>
+                        <Button>Save</Button>
+                    </div>
+                </form>
+            </FormProvider>
         </>
     )
 }

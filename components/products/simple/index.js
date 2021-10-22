@@ -4,30 +4,33 @@ import Input from "components/common/Input";
 import Errors from "components/common/errors";
 import Toggle from "components/common/Toggle";
 import Select from "components/common/Select";
-import {shippingOptions, stockOptions} from "components/products/utils";
+import {generate5Code, generateBarcode, generateEan13, shippingOptions, stockOptions} from "components/products/utils";
 import Textarea from "components/common/Textarea";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {useFormContext} from "react-hook-form";
 
-/**
- *
- * @param control
- * @param errors
- * @param register
- * @returns {JSX.Element}
- * @constructor
- */
-export default function Simple({control, errors, register}) {
+export default function Simple() {
+    const {control, formState: {errors}, register, setValue, trigger} = useFormContext()
     const [showScheduleFields, setShowScheduleFields] = useState(false);
     const handleFiveCode = () => {
-
+        const code = generate5Code()
+        setValue('simple_product.code_five', code)
     }
     const handleEan13 = () => {
-
+        const code = generateEan13();
+        setValue('simple_product.ean_13', code)
+        generateBarcode('barcode', code)
+    }
+    const handleManualEan13 = async () => {
+        if (!errors?.simple_product?.ean_13) {
+            const code = getValues('simple_product.ean_13');
+            generateBarcode('barcode', code)
+        }
     }
     return <div className={`grid grid-cols-2 gap-x-4 gap-y-6 mt-6`}>
         <div className={`col-span-2 flex gap-x-8`}>
             <div className={`w-2/12`}>
-                <FileUpload name='simple_product.image' control={control} label="Upload Image"/>
+                <FileUpload name='simple_product.img' control={control} label="Upload Image"/>
             </div>
             <div className={`w-6/12`}>
                 <Label forEl="sku">SKU</Label>
@@ -37,16 +40,21 @@ export default function Simple({control, errors, register}) {
             <div className={`w-4/12`}>
                 <div>
                     <Label>EAN-13</Label>
+                    <a onClick={handleManualEan13}
+                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2 hover:underline`}>generate</a>
                     <a onClick={handleEan13}
-                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>generate</a>
-                    <img id='barcode'/>
-                    <Input type="hidden" name="simple_product.ean_13" register={register}/>
+                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2 hover:underline`}>auto generate</a>
+                    <img className={`mb-2`} id='barcode'/>
+                    <Input onChangeCb={() => trigger('simple_product.ean_13')} name="simple_product.ean_13"
+                           register={register}/>
+                    <Errors errors={errors} name="simple_product.ean_13"/>
                 </div>
                 <div>
                     <Label>Random Code</Label>
                     <a onClick={handleFiveCode}
-                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>generate</a>
-                    <Input readOnly={true} name="simple_product.code_five" register={register}/>
+                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2 hover:underline`}>generate</a>
+                    <Input name="simple_product.code_five" register={register}/>
+                    <Errors errors={errors} name="simple_product.code_five"/>
                 </div>
             </div>
         </div>
@@ -64,7 +72,7 @@ export default function Simple({control, errors, register}) {
             <Input
                 name="simple_product.regular_price"
                 register={register}
-                placeholder="variation price"/>
+                placeholder="price"/>
             <Errors errors={errors} name="simple_product.regular_price"/>
         </div>
         <div>
@@ -79,7 +87,7 @@ export default function Simple({control, errors, register}) {
                        className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>Schedule</a>
             }
             <Input name="simple_product.sale_price" register={register}/>
-            <Errors errors={errors} name="sale_price"/>
+            <Errors errors={errors} name="simple_product.sale_price"/>
         </div>
         {
             showScheduleFields &&
@@ -106,22 +114,22 @@ export default function Simple({control, errors, register}) {
         <div>
             <Label>Weight (kg)</Label>
             <Input name="simple_product.weight" register={register}/>
-            <Errors errors={errors} name="weight"/>
+            <Errors errors={errors} name="simple_product.weight"/>
         </div>
         <div>
             <Label>Dimensions (L*W*H) (cm)</Label>
             <div className={`flex items-center justify-start gap-x-2`}>
                 <div>
                     <Input name="simple_product.length" register={register} placeholder="Length"/>
-                    <Errors errors={errors} name="length"/>
+                    <Errors errors={errors} name="simple_product.length"/>
                 </div>
                 <div>
                     <Input name="simple_product.width" register={register} placeholder="Width"/>
-                    <Errors errors={errors} name="width"/>
+                    <Errors errors={errors} name="simple_product.width"/>
                 </div>
                 <div>
                     <Input name="simple_product.height" register={register} placeholder="Height"/>
-                    <Errors errors={errors} name="height"/>
+                    <Errors errors={errors} name="simple_product.height"/>
                 </div>
             </div>
         </div>

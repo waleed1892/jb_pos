@@ -11,7 +11,7 @@ import {ChevronUpIcon, XIcon} from "@heroicons/react/solid";
  */
 export default function Accordion({title, children,onDelete=() => {}}) {
     return (
-        <Disclosure>
+        <Disclosure as={'div'}>
             <Disclosure.Button
                 className="flex justify-between w-full px-4 py-2 border border-indigo-200 text-sm font-semibold capitalize text-left text-indigo-900 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 focus-visible:ring-opacity-75">
                 <span>{title}</span>

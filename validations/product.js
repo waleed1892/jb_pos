@@ -1,14 +1,14 @@
 import * as yup from "yup";
 
 export const productValidation = yup.object({
-    image: yup.object().shape({
+    img: yup.object().shape({
         name: yup.string()
     }).nullable(),
     sku: yup.string().ensure().label('sku'),
     regular_price: yup.string().matches(/^\d*$/, {
         message: 'regular price must be a number',
         excludeEmptyString: false
-    }).ensure(),
+    }).required().ensure().label('regular price'),
     sale_price: yup.lazy(value => value ? yup.number()
         .when('regular_price', (val, schema) => {
             return val ? schema.lessThan(val) : schema
@@ -25,6 +25,6 @@ export const productValidation = yup.object({
     description: yup.string().ensure(),
     enabled: yup.boolean(),
     manage_stock: yup.boolean(),
-    code_five: yup.string().ensure(),
-    ean_13: yup.string().ensure()
+    code_five: yup.string().required().length(5).ensure().label('code'),
+    ean_13: yup.string().matches(/^\d*$/, {message: 'barcode must be a number'}).required().ensure().length(12).label('barcode')
 }).required()

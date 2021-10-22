@@ -11,9 +11,17 @@ export const productColumns = [
         accessor: 'name_ar'
     },
     {
+        header: 'Type',
+        accessor: 'type',
+    },
+    {
         header: 'Variations',
         accessor: 'variations',
-        cell: (row) => row.variations.length
+        cell: (row) => {
+            if (row.type === 'variable')
+                return row.variations.length
+            return ''
+        }
     }
 ]
 
@@ -25,8 +33,8 @@ const rng = (length) => {
     return out;
 }
 
-export const generateBarcode = (data) => {
-    jsbarcode('#barcode', data, {
+export const generateBarcode = (id, data) => {
+    jsbarcode(`#${id}`, data, {
         format: 'EAN13'
     })
 }

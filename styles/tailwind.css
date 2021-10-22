@@ -1497,6 +1497,11 @@ select {
   border-color: rgba(99, 102, 241, var(--tw-border-opacity));
 }
 
+.border-red-500 {
+  --tw-border-opacity: 1;
+  border-color: rgba(239, 68, 68, var(--tw-border-opacity));
+}
+
 .border-gray-100 {
   --tw-border-opacity: 1;
   border-color: rgba(244, 244, 245, var(--tw-border-opacity));
@@ -3313,6 +3318,10 @@ select {
   text-decoration: none;
 }
 
+.hover\:underline:hover {
+  text-decoration: underline;
+}
+
 .antialiased {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -3559,6 +3568,10 @@ select {
 .gap-x-8 {
   -webkit-column-gap: 2rem;
           column-gap: 2rem;
+}
+
+.gap-y-1 {
+  row-gap: 0.25rem;
 }
 
 .gap-y-2 {
