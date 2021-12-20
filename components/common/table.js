@@ -35,12 +35,12 @@ export default function Table(
                     </div>
                 </div>
             }
-            {
-                isFetching &&
-                <div className={`absolute inset-0 bg-blueGray-200 bg-opacity-40 flex items-center justify-center`}>
-                    <RefreshIcon className={`w-8 h-8 text-indigo-500 text-opacity-80 animate-spin`}/>
-                </div>
-            }
+            {/*{*/}
+            {/*    isFetching &&*/}
+            {/*    <div className={`absolute inset-0 bg-blueGray-200 bg-opacity-40 flex items-center justify-center`}>*/}
+            {/*        <RefreshIcon className={`w-8 h-8 text-indigo-500 text-opacity-80 animate-spin`}/>*/}
+            {/*    </div>*/}
+            {/*}*/}
             <div className="block w-full overflow-x-auto">
                 {/* Projects table */}
                 <table
@@ -61,35 +61,44 @@ export default function Table(
                         <th className={`px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-bold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100`}>Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {
-                        data.map((item, itemIndex) =>
-                            <tr key={item.id ?? itemIndex}>
-                                {
-                                    columns.map(column =>
-                                        <td key={`${column.accessor}_${item.id}`}
-                                            className={`px-6 align-middle text-xs whitespace-nowrap p-4 text-left ${bordered && 'border border-gray-100'}`}>
-                                            {renderCell(item, column)}
-                                        </td>)
-                                }
-                                <td className={`px-6 align-middle text-xs whitespace-nowrap p-4 text-left ${bordered && 'border border-gray-100'}`}>
+
+                    {isFetching ? (
+                        <div className={`absolute inset-0 bg-blueGray-200 bg-opacity-40 flex items-center  justify-center`}>
+                            <RefreshIcon className={`w-8 h-8 text-indigo-500 text-opacity-80 animate-spin`}/>
+                        </div>
+                    ):(
+                        <tbody>
+                        {
+                            data.map((item, itemIndex) =>
+                                <tr key={item.id ?? itemIndex}>
                                     {
-                                        actions && actions(itemIndex)
+                                        columns.map(column =>
+                                            <td key={`${column.accessor}_${item.id}`}
+                                                className={`px-6 align-middle text-xs whitespace-nowrap p-4 text-left ${bordered && 'border border-gray-100'}`}>
+                                                {renderCell(item, column)}
+                                            </td>)
                                     }
+                                    <td className={`px-6 align-middle text-xs whitespace-nowrap p-4 text-left ${bordered && 'border border-gray-100'}`}>
+                                        {
+                                            actions && actions(itemIndex)
+                                        }
+                                    </td>
+                                </tr>
+                            )
+                        }
+                        {
+                            !data.length &&
+                            <tr>
+                                <td colSpan={columns.length + 1}
+                                    className={`px-6 align-middle text-sm whitespace-nowrap p-4 ${bordered && 'border border-gray-100'} text-center font-semibold`}>No
+                                    Records
                                 </td>
                             </tr>
-                        )
-                    }
-                    {
-                        !data.length &&
-                        <tr>
-                            <td colSpan={columns.length + 1}
-                                className={`px-6 align-middle text-sm whitespace-nowrap p-4 ${bordered && 'border border-gray-100'} text-center font-semibold`}>No
-                                Records
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
+                        }
+                        </tbody>
+                    )}
+
+
                 </table>
             </div>
         </div>
