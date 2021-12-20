@@ -91,7 +91,7 @@ export default function Sidebar() {
                 <SidebarLink iconClass="fas fa-tv" showIcon={true} href="/admin/products">Products</SidebarLink>
               </li>
               <li className="items-center">
-                <SidebarLink iconClass="fas fa-tv" showIcon={true} href="/admin/attributes">Attributess</SidebarLink>
+                <SidebarLink iconClass="fas fa-tv" showIcon={true} href="/admin/attributes">Attributes</SidebarLink>
               </li>
 
               <li className="items-center">
