@@ -62,3 +62,12 @@ export const productTypes = [
     {label: 'Variable', value: 'variable'}
 ]
 
+export const categories = [
+    {label: 'cat 1', value: '1'},
+    {label: 'cat 2', value: '2'},
+    {label: 'cat 3', value: '3'},
+    {label: 'cat 4', value: '4'},
+    {label: 'cat 5', value: '5'},
+    {label: 'cat 6', value: '6'},
+]
+
