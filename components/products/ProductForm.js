@@ -52,6 +52,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
         }
 
     });
+
     // const queryClient = useQueryClient()
     // const categories = queryClient.getQueryData('categories')
     // console.log(categories,'test')
@@ -94,7 +95,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
                 console.log(tmpVariations)
             }
         }
-    }, [])
+    }, [categories])
 
     const saveMutation = useMutation(saveProduct)
     const updateMutation = useMutation(updateProduct)

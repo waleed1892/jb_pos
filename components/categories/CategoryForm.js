@@ -3,19 +3,16 @@ import Input from "components/common/Input";
 import Label from "components/common/Label";
 import {useMutation, useQueryClient} from "react-query";
 import {set, useForm} from "react-hook-form";
-import {saveCategory, updateCategory, deleteCategory} from "services/categories";
+import {saveCategory, updateCategory} from "services/categories";
 import Errors from "components/common/errors";
 import {attributeSkeleton} from "constants/attribute";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import Button from "components/common/button";
 import Select from "../common/Select";
-import {updateAttribute} from "../../services/attributes";
 
 const schema = yup.object({
     name: yup.string().required(),
-    // slug: yup.string().required(),
-    values: yup.array()
 }).required()
 /**
  *
@@ -52,8 +49,7 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
                 setValue(field, category[field])
             })
             setValue('_method', 'put')
-            setValue('parent_id', `${category['parent_id']}`)
-            // setValue('parent_id', values)
+            setValue('parent_id', category['parent_id'])
         }
     }, []);
 
@@ -84,7 +80,6 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
                         <Label>Parent Category</Label>
                         <Select control={control}
                                 valueField="id"
-                                onSelect={(val)=>{setValues(val)}}
                                 labelField="name"
                                 name="parent_id"
                                 options={categories.data}
