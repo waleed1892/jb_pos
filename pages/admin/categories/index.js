@@ -23,7 +23,8 @@ export default function Index() {
     } = useQuery('categories', getCategories, {
         keepPreviousData: true,
         placeholderData:{
-            data:[]
+            data:[],
+            meta:{}
         }
 
     });
@@ -83,10 +84,10 @@ export default function Index() {
                 <Table isFetching={isFetching } columns={columns} data={categories.data}
                        actions={tableActions}
                 />
-                {/*{*/}
-                {/*    attributes.meta.last_page > 1 &&*/}
-                {/*    <Pagination onPageChange={(page) => setPage(page)} meta={attributes.meta}/>*/}
-                {/*}*/}
+                {
+                    categories.meta.last_page > 1 &&
+                    <Pagination onPageChange={(page) => setPage(page)} meta={categories.meta}/>
+                }
             </Card>
 
             <Modal size="lg" title={categories.data[currentEditableIndex]?.name ?? 'Add Category'}
@@ -104,12 +105,3 @@ export default function Index() {
 
 Index.layout = Admin
 
-// export async function getStaticProps() {
-//     const queryClient = new QueryClient()
-//     // await queryClient.prefetchQuery(['attributes', 1], getAttributes)
-//     return {
-//         props: {
-//             dehydratedState: dehydrate(queryClient)
-//         }
-//     }
-// }
