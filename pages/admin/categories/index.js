@@ -22,12 +22,17 @@ export default function Index() {
         isFetching
     } = useQuery('categories', getCategories, {
         keepPreviousData: true,
+        onSuccess:(data)=>{
+            console.log(data,'sdfsdfs')
+        },
         placeholderData:{
             data:[],
-            meta:{}
+            meta:[]
         }
 
     });
+
+    console.log(categories,'sdfsdfs')
 
     const queryClient = useQueryClient();
     const columns = [
@@ -84,10 +89,10 @@ export default function Index() {
                 <Table isFetching={isFetching } columns={columns} data={categories.data}
                        actions={tableActions}
                 />
-                {
-                    categories.meta.last_page > 1 &&
-                    <Pagination onPageChange={(page) => setPage(page)} meta={categories.meta}/>
-                }
+                {/*{*/}
+                {/*    categories.meta.last_page > 1 &&*/}
+                {/*    <Pagination onPageChange={(page) => setPage(page)} meta={categories.meta}/>*/}
+                {/*}*/}
             </Card>
 
             <Modal size="lg" title={categories.data[currentEditableIndex]?.name ?? 'Add Category'}

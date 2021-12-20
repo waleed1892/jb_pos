@@ -2,7 +2,7 @@ import Label from "components/common/Label";
 import Input from "components/common/Input";
 import React, {useState, useEffect} from "react";
 import {useForm, FormProvider} from "react-hook-form";
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {saveProduct, updateProduct} from "services/product";
 import {getAllAttributes} from "services/attributes";
 import {useRouter} from "next/router";
@@ -11,12 +11,13 @@ import {productSkeleton} from "constants/product";
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import Select from "components/common/Select";
-import {generateBarcode, productTypes,} from "components/products/utils";
+import {  generateBarcode, productTypes, stockOptions,} from "components/products/utils";
 import {productValidation} from "validations/product";
 import Button from "components/common/button";
 import Simple from "components/products/simple";
 import dynamic from "next/dynamic";
 import {cloneDeep} from "lodash";
+import {getCategories} from "../../services/categories";
 
 const Variable = dynamic(() => import("components/products/variable"));
 
@@ -25,6 +26,7 @@ const schema = yup.object({
     name_en: yup.string().required(),
     name_ar: yup.string().required(),
     type: yup.string().required(),
+    category_id: yup.string().required(),
     simple_product: yup.object().when('type', (val, schema) => {
         return val === 'simple' ? productValidation : schema
     }),
@@ -40,6 +42,19 @@ const schema = yup.object({
  * @constructor
  */
 export default function ProductForm({formType = 'add', product = {}}) {
+    const {
+        data: categories,
+        isFetching
+    } = useQuery('categories1', getCategories, {
+        keepPreviousData: true,
+        placeholderData:{
+            data:[],
+        }
+
+    });
+    // const queryClient = useQueryClient()
+    // const categories = queryClient.getQueryData('categories')
+    // console.log(categories,'test')
     const router = useRouter()
     const [productType, setProductType] = useState(productSkeleton.type);
     const [showARName, setShowARName] = useState(false);
@@ -54,11 +69,13 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     const {errors} = formState
     useEffect(() => {
+        console.log(product,'check')
         if (formType === 'edit') {
             Object.keys(product).forEach(fieldKey => {
                 setValue(fieldKey, product[fieldKey])
             })
             setValue('_method', 'put')
+            setValue('category_id', product['category_id'])
             if (product.type === 'simple') {
                 generateBarcode('barcode', product.simple_product.ean_13)
                 setProductType(product.type)
@@ -90,7 +107,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
             await saveMutation.mutateAsync(data)
         }
 
-        await router.push('/admin/products')
+        // await router.push('/admin/products')
     }
     const handleType = (val) => {
         setProductType(val)
@@ -129,6 +146,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
                                 <Errors name='name_en' errors={errors}/>
                                 <Errors name='name_ar' errors={errors}/>
                             </div>
+
                             {
                                 formType === 'add' &&
                                 <div>
@@ -137,6 +155,18 @@ export default function ProductForm({formType = 'add', product = {}}) {
                                             name='type'/>
                                 </div>
                             }
+                            <div className={`col-span-2`}>
+                                <Label>Select Category</Label>
+                                <Select control={control}
+                                        valueField="id"
+                                        // onSelect={(val)=>{setValues(val)}}
+                                        labelField="name"
+                                        name="category_id"
+                                        options={categories.data}
+
+                                />
+                            </div>
+                            <Errors name='category_id' errors={errors}/>
                         </div>
                     </div>
 

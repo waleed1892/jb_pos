@@ -18,6 +18,7 @@ export default function Index() {
     const deleteMutation = useMutation(deleteProduct,{
         onSuccess: () => {
             queryClient.invalidateQueries('products')
+            queryClient.setQueriesData('categories')
         }
     })
     const deleteProductHandler = async (index) => {

@@ -10,7 +10,6 @@ import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import Button from "components/common/button";
 import Select from "../common/Select";
-import {categories} from "../products/utils";
 import {updateAttribute} from "../../services/attributes";
 
 const schema = yup.object({
@@ -32,7 +31,8 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
         resolver: yupResolver(schema)
     });
     const queryClient = useQueryClient()
-    // const [values, setValues] = useState([]);
+    const categories = queryClient.getQueryData('categories')
+    const [values, setValues] = useState([1]);
 
     const saveMutation = useMutation(saveCategory, {
         onSuccess: () => {
@@ -48,13 +48,12 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
 
     useEffect(() => {
         if (formType === 'edit') {
-
             Object.keys(category).forEach(field => {
                 setValue(field, category[field])
             })
             setValue('_method', 'put')
-            // setValue('parent_id', `${category['parent_id']}`)
-            setValue('parent_id', `2`)
+            setValue('parent_id', `${category['parent_id']}`)
+            // setValue('parent_id', values)
         }
     }, []);
 
@@ -84,9 +83,12 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
                     <div>
                         <Label>Parent Category</Label>
                         <Select control={control}
+                                valueField="id"
+                                onSelect={(val)=>{setValues(val)}}
+                                labelField="name"
                                 name="parent_id"
-                                options={categories}
-                                valueField="value"
+                                options={categories.data}
+
                         />
 
                     </div>

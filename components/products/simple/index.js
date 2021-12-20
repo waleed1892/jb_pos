@@ -111,6 +111,7 @@ export default function Simple() {
                     options={stockOptions}
                     valueField="value"/>
         </div>
+
         <div>
             <Label>Weight (kg)</Label>
             <Input name="simple_product.weight" register={register}/>
