@@ -5,7 +5,7 @@ import Table from "components/common/table";
 import Pagination from "components/common/Pagination";
 import React, {lazy, Suspense, useState} from "react";
 import Modal from "components/common/Modal";
-import {getCategories, deleteCategory} from "services/categories";
+import {getCategories , deleteCategory} from "services/categories";
 import {dehydrate, QueryClient, useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
 
@@ -20,17 +20,19 @@ export default function Index() {
     const {
         data: categories,
         isFetching
-    } = useQuery(['categories',page], ()=>getCategories(page), {
+    } = useQuery('categories', getCategories, {
         keepPreviousData: true,
-        onSuccess: (data) => {
-            queryClient.setQueryData('allCategories' , data)
+        onSuccess:(data)=>{
+            // console.log(data,'sdfsdfs')
         },
-        placeholderData: {
-            data: [],
-            meta: []
+        placeholderData:{
+            data:[],
+            meta:[]
         }
 
     });
+
+    // console.log(categories,'sdfsdfs')
 
     const queryClient = useQueryClient();
     const columns = [
@@ -39,9 +41,24 @@ export default function Index() {
             accessor: 'name'
         },
         {
-            header: 'Parent Category',
-            accessor: 'parent_category'
+            header: 'Customer',
+            accessor: 'customer_name'
         },
+
+        {
+            header: 'Order',
+            accessor: 'order'
+        },
+
+        {
+            header: 'Quantity',
+            accessor: 'quantity'
+        },
+
+        {
+            header: 'Total',
+            accessor: 'total'
+        }
     ]
 
     const editCategory = (index) => {
@@ -76,31 +93,31 @@ export default function Index() {
 
     return (
         <>
-            <Card title="Categories" actions={
+            <Card title="Invoices" actions={
                 <>
                     <>
-                        <CardAction onClick={addCategory}>Add New</CardAction>
+                        {/*<CardAction onClick={addInvoice} >Add New</CardAction>*/}
                     </>
 
                 </>
             }>
-                <Table isFetching={isFetching} columns={columns} data={categories.data}
-                       actions={tableActions}
-                />
-                {
-                    categories.meta.last_page > 1 &&
-                    <Pagination onPageChange={(page) => setPage(page)} meta={categories.meta}/>
-                }
+                {/*<Table isFetching={isFetching } columns={columns} data={invoices.data}*/}
+                {/*       actions={tableActions}*/}
+                {/*/>*/}
+                {/*{*/}
+                {/*    invoices.meta.last_page > 1 &&*/}
+                {/*    <Pagination onPageChange={(page) => setPage(page)} meta={invoices.meta}/>*/}
+                {/*}*/}
             </Card>
 
-            <Modal size="md" title={categories.data[currentEditableIndex]?.name ?? 'Add Category'}
-                   isOpen={isAttributeModalOpen}
-                   close={() => setIsAttributeModalOpen(false)}>
-                <Suspense fallback={<div>loading...</div>}>
-                    <CategoryForm category={categories.data[currentEditableIndex]} formType={formType}
-                                  onSubmit={() => setIsAttributeModalOpen(false)}/>
-                </Suspense>
-            </Modal>
+            {/*<Modal size="lg" title={invoices.data[currentEditableIndex]?.name ?? 'Add Category'}*/}
+            {/*       isOpen={isAttributeModalOpen}*/}
+            {/*       close={() => setIsAttributeModalOpen(false)}>*/}
+            {/*    <Suspense fallback={<div>loading...</div>}>*/}
+            {/*        <CategoryForm category={invoices.data[currentEditableIndex]} formType={formType}*/}
+            {/*                      onSubmit={() => setIsAttributeModalOpen(false)}/>*/}
+            {/*    </Suspense>*/}
+            {/*</Modal>*/}
         </>
 
     )

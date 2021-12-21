@@ -17,7 +17,7 @@ import Button from "components/common/button";
 import Simple from "components/products/simple";
 import dynamic from "next/dynamic";
 import {cloneDeep} from "lodash";
-import {getCategories} from "../../services/categories";
+import {getAllCategories,getCategories} from "../../services/categories";
 
 const Variable = dynamic(() => import("components/products/variable"));
 
@@ -45,13 +45,15 @@ export default function ProductForm({formType = 'add', product = {}}) {
     const {
         data: categories,
         isFetching
-    } = useQuery('categories1', getCategories, {
-        keepPreviousData: true,
+    } = useQuery('allCategories', getAllCategories, {
+        // keepPreviousData: true,
         placeholderData:{
             data:[],
         }
 
     });
+
+
 
     // const queryClient = useQueryClient()
     // const categories = queryClient.getQueryData('categories')
@@ -70,7 +72,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     const {errors} = formState
     useEffect(() => {
-        console.log(product,'check')
+        // console.log(product,'check')
         if (formType === 'edit') {
             Object.keys(product).forEach(fieldKey => {
                 setValue(fieldKey, product[fieldKey])
@@ -129,7 +131,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
                 <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
                     <div>
                         <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
-                        <div className={`grid grid-cols-2 gap-x-4`}>
+                        <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
                             <div>
                                 <div className={`${showARName ? '' : 'hidden'}`}>
                                     <Label>Name (AR)</Label>
@@ -156,7 +158,8 @@ export default function ProductForm({formType = 'add', product = {}}) {
                                             name='type'/>
                                 </div>
                             }
-                            <div className={`col-span-2`}>
+
+                            <div className={`col-span-1`}>
                                 <Label>Select Category</Label>
                                 <Select control={control}
                                         valueField="id"
@@ -166,8 +169,9 @@ export default function ProductForm({formType = 'add', product = {}}) {
                                         options={categories.data}
 
                                 />
+                                <Errors name='category_id' errors={errors}/>
                             </div>
-                            <Errors name='category_id' errors={errors}/>
+
                         </div>
                     </div>
 

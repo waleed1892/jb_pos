@@ -97,6 +97,10 @@ export default function Sidebar() {
               <li className="items-center">
                 <SidebarLink iconClass="fas fa-tv" showIcon={true} href="/admin/categories">Categories</SidebarLink>
               </li>
+
+              <li className="items-center">
+                <SidebarLink iconClass="fas fa-tv" showIcon={true} href="/admin/invoices">Invoices</SidebarLink>
+              </li>
             </ul>
           </div>
         </div>

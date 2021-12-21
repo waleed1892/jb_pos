@@ -1,9 +1,9 @@
 import React, {Suspense, useEffect, useState} from "react";
 import Input from "components/common/Input";
 import Label from "components/common/Label";
-import {useMutation, useQueryClient} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {set, useForm} from "react-hook-form";
-import {saveCategory, updateCategory} from "services/categories";
+import {getAllCategories, saveCategory, updateCategory} from "services/categories";
 import Errors from "components/common/errors";
 import {attributeSkeleton} from "constants/attribute";
 import * as yup from "yup";
@@ -22,14 +22,26 @@ const schema = yup.object({
  * @returns {JSX.Element}
  * @constructor
  */
-export default function AttributeForm({formType = 'add', attribute = {}, category = {}, onSubmit}) {
+export default function AttributeForm({formType = 'add', category = {}, onSubmit}) {
     const {register, handleSubmit, control, formState: {errors}, setValue} = useForm({
         // defaultValues: {...attributeSkeleton},
         resolver: yupResolver(schema)
     });
     const queryClient = useQueryClient()
-    const categories = queryClient.getQueryData('categories')
+    // const categories = queryClient.getQueryData('allCategories')
     const [values, setValues] = useState([1]);
+
+
+    const {
+        data: categories,
+        isFetching
+    } = useQuery('allCategories', getAllCategories, {
+        // keepPreviousData: true,
+        placeholderData:{
+            data:[],
+        }
+
+    });
 
     const saveMutation = useMutation(saveCategory, {
         onSuccess: () => {
@@ -66,9 +78,8 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
     return (
         <>
             <form onSubmit={handleSubmit(handleForm)} method={`post`} action="">
-                <div className={`grid grid-cols-3 gap-x-4`}>
+                <div className={`grid grid-cols-2 h-350-px gap-x-4`}>
                     <div>
-
                         <div>
                             <Label>Name</Label>
                             <Input register={register} name="name"/>
@@ -83,7 +94,6 @@ export default function AttributeForm({formType = 'add', attribute = {}, categor
                                 labelField="name"
                                 name="parent_id"
                                 options={categories.data}
-
                         />
 
                     </div>
