@@ -1,4 +1,4 @@
-import {get, post,put} from "lib/axios";
+import {get, post} from "lib/axios";
 
 export const getCategories = async (page) => {
     return (await get(`category?page=${page}`)).data
