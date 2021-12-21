@@ -35,7 +35,7 @@ export default function AttributeForm({formType = 'add', category = {}, onSubmit
     const {
         data: categories,
         isFetching
-    } = useQuery('allCategories', getAllCategories, {
+    } = useQuery('allCategories1', getAllCategories, {
         // keepPreviousData: true,
         placeholderData:{
             data:[],
