@@ -8,7 +8,7 @@ import Modal from "components/common/Modal";
 import {getCategories, deleteCategory} from "services/categories";
 import {dehydrate, QueryClient, useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
-
+import Swal from "sweetalert2";
 const CategoryForm = lazy(() => import("components/categories/CategoryForm"));
 
 export default function Index() {
@@ -59,11 +59,23 @@ export default function Index() {
     const deleteMutation = useMutation(deleteCategory, {
         onSuccess: async () => {
             await queryClient.invalidateQueries('categories')
+            await queryClient.invalidateQueries('showCategories')
         },
     })
     const deleteCategoryHandler = async (index) => {
         const category = categories.data[index];
-        await deleteMutation.mutateAsync(category.id)
+        Swal.fire({
+            title: 'Confirm Delete?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: '#d33',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteMutation.mutateAsync(category.id)
+                Swal.fire('Deleted!', '', 'success')
+            }
+        })
     }
 
     const tableActions = (categoryIndex) =>
@@ -81,7 +93,6 @@ export default function Index() {
                     <>
                         <CardAction onClick={addCategory}>Add New</CardAction>
                     </>
-
                 </>
             }>
                 <Table isFetching={isFetching} columns={columns} data={categories.data}
@@ -107,4 +118,3 @@ export default function Index() {
 }
 
 Index.layout = Admin
-

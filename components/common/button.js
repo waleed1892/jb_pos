@@ -26,6 +26,9 @@ export default function Button(
         case 'info':
             variantClass = 'bg-lightBlue-500 active:bg-lightBlue-600 hover:bg-lightBlue-600'
             break;
+        case 'danger':
+            variantClass = 'bg-red-500 active:bg-red-600 hover:bg-red-600'
+            break;
         default:
             variantClass = 'bg-indigo-500 active:bg-indigo-600 hover:bg-indigo-600'
     }

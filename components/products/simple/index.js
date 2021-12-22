@@ -10,7 +10,7 @@ import {useEffect, useState} from "react";
 import {useFormContext} from "react-hook-form";
 
 export default function Simple() {
-    const {control, formState: {errors}, register, setValue, trigger} = useFormContext()
+    const {control, formState: {errors}, register, setValue, getValues, trigger} = useFormContext()
     const [showScheduleFields, setShowScheduleFields] = useState(false);
     const handleFiveCode = () => {
         const code = generate5Code()

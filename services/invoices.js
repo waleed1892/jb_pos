@@ -8,6 +8,8 @@ export const saveInvoice = (data) => {
     return post(`invoice`, data)
 }
 
+export const getInvoice = async (id) => (await get(`invoice/${id}`)).data
+
 export const updateInvoice = async ({id, data}) => {
     return (await post(`invoice/${id}`, data)).data
 }

@@ -3,18 +3,17 @@ import Card from "components/common/Card/Card";
 import CardAction from "components/common/Card/CardAction";
 import Table from "components/common/table";
 import Pagination from "components/common/Pagination";
-import React, {lazy, Suspense, useState} from "react";
-import Modal from "components/common/Modal";
+import React, {useState} from "react";
 import { getInvoices, deleteInvoice} from "services/invoices";
 import {useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
-const InvoiceForm = lazy(() => import("components/invoices/InvoiceForm"));
+import {useRouter} from 'next/router'
+import Swal from "sweetalert2";
+// const InvoiceForm = lazy(() => import("components/invoices/InvoiceForm"));
 
 export default function Index() {
-    const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
-    const [currentEditableIndex, setCurrentEditableIndex] = useState(null)
-    const [formType, setFormType] = useState('add')
     const [page, setPage] = useState(1)
+    const router = useRouter();
 
     const {
         data: invoices,
@@ -60,18 +59,6 @@ export default function Index() {
         }
     ]
 
-    const editInvoice = (index) => {
-        setFormType('edit')
-        setCurrentEditableIndex(index)
-        setIsAttributeModalOpen(true)
-    }
-
-    const addInvoice = () => {
-        setFormType('add')
-        setCurrentEditableIndex(null)
-        setIsAttributeModalOpen(true)
-    }
-
     const deleteMutation = useMutation(deleteInvoice, {
         onSuccess: async () => {
             await queryClient.invalidateQueries('invoices')
@@ -79,12 +66,23 @@ export default function Index() {
     })
     const deleteInvoiceHandler = async (index) => {
         const invoice = invoices.data[index];
-        await deleteMutation.mutateAsync(invoice.id)
+        Swal.fire({
+            title: 'Confirm Delete?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: '#d33',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteMutation.mutateAsync(invoice.id)
+                Swal.fire('Deleted!', '', 'success')
+            }
+        })
     }
 
     const tableActions = (categoryIndex) =>
         <div className={`flex items-center gap-x-2`}>
-            <PencilIcon onClick={() => editInvoice(categoryIndex)}
+            <PencilIcon onClick={() => router.push(`/admin/invoices/edit/${invoices.data[categoryIndex].id}`)}
                         className={`w-5 h-5 text-lightBlue-500 cursor-pointer`}/>
             <TrashIcon onClick={() => deleteInvoiceHandler(categoryIndex)}
                        className={`w-5 h-5 text-red-400 cursor-pointer`}/>
@@ -95,7 +93,7 @@ export default function Index() {
             <Card title="Invoices" actions={
                 <>
                     <>
-                        <CardAction onClick={addInvoice} >Add New</CardAction>
+                        <CardAction onClick={() => router.push('/admin/invoices/add')} >Add New</CardAction>
                     </>
 
                 </>
@@ -108,19 +106,9 @@ export default function Index() {
                     <Pagination onPageChange={(page) => setPage(page)} meta={invoices.meta}/>
                 }
             </Card>
-
-            <Modal size="lg" title={invoices.data[currentEditableIndex]?.name ?? 'Add Invoice'}
-                   isOpen={isAttributeModalOpen}
-                   close={() => setIsAttributeModalOpen(false)}>
-                <Suspense fallback={<div>loading...</div>}>
-                    <InvoiceForm invoice={invoices.data[currentEditableIndex]} formType={formType}
-                                 onSubmitHandle={() => setIsAttributeModalOpen(false)}/>
-                </Suspense>
-            </Modal>
         </>
 
     )
 }
 
 Index.layout = Admin
-

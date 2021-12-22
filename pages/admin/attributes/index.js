@@ -8,6 +8,7 @@ import Modal from "components/common/Modal";
 import {getAttributes, deleteAttribute} from "services/attributes";
 import {dehydrate, QueryClient, useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
+import Swal from "sweetalert2";
 
 const AttributeForm = lazy(() => import("components/attributes/AttributeForm"));
 
@@ -50,7 +51,18 @@ export default function Index() {
     })
     const deleteAttributeHandler = async (index) => {
         const attribute = attributes.data[index];
-        await deleteMutation.mutateAsync(attribute.id)
+        Swal.fire({
+            title: 'Confirm Delete?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: '#d33',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteMutation.mutateAsync(attribute.id)
+                Swal.fire('Deleted!', '', 'success')
+            }
+        })
     }
 
     const tableActions = (attributeIndex) =>
