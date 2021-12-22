@@ -1,7 +1,7 @@
-import {get, post,put} from "lib/axios";
+import {get, post} from "lib/axios";
 
-export const getCategories = async () => {
-    return (await get(`category`)).data
+export const getCategories = async (page) => {
+    return (await get(`category?page=${page}`)).data
 }
 
 export const saveCategory = (data) => {
@@ -17,3 +17,8 @@ export const deleteCategory = async (id) => {
         _method: 'DELETE'
     })).data
 }
+
+export const getAllCategories = async () => {
+    return (await get(`allCategories`)).data
+}
+

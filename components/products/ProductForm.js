@@ -11,13 +11,14 @@ import {productSkeleton} from "constants/product";
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import Select from "components/common/Select";
-import {  generateBarcode, productTypes, stockOptions,} from "components/products/utils";
+import {generateBarcode, productTypes, stockOptions,} from "components/products/utils";
 import {productValidation} from "validations/product";
 import Button from "components/common/button";
 import Simple from "components/products/simple";
 import dynamic from "next/dynamic";
 import {cloneDeep} from "lodash";
-import {getCategories} from "../../services/categories";
+import {getAllCategories} from "../../services/categories";
+import {RefreshIcon} from "@heroicons/react/solid";
 
 const Variable = dynamic(() => import("components/products/variable"));
 
@@ -45,17 +46,14 @@ export default function ProductForm({formType = 'add', product = {}}) {
     const {
         data: categories,
         isFetching
-    } = useQuery('categories1', getCategories, {
-        keepPreviousData: true,
-        placeholderData:{
-            data:[],
+    } = useQuery('showCategories', getAllCategories, {
+        // keepPreviousData: true,
+        placeholderData: {
+            data: [],
         }
 
     });
 
-    // const queryClient = useQueryClient()
-    // const categories = queryClient.getQueryData('categories')
-    // console.log(categories,'test')
     const router = useRouter()
     const [productType, setProductType] = useState(productSkeleton.type);
     const [showARName, setShowARName] = useState(false);
@@ -70,7 +68,6 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     const {errors} = formState
     useEffect(() => {
-        console.log(product,'check')
         if (formType === 'edit') {
             Object.keys(product).forEach(fieldKey => {
                 setValue(fieldKey, product[fieldKey])
@@ -127,58 +124,58 @@ export default function ProductForm({formType = 'add', product = {}}) {
         <>
             <FormProvider {...methods}>
                 <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
-                    <div>
-                        <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
-                        <div className={`grid grid-cols-2 gap-x-4`}>
                             <div>
-                                <div className={`${showARName ? '' : 'hidden'}`}>
-                                    <Label>Name (AR)</Label>
-                                    <a onClick={() => setShowARName(false)}
-                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
-                                    <Input name="name_ar"
-                                           register={register}/>
-                                </div>
-                                <div className={`${!showARName ? '' : 'hidden'}`}>
-                                    <Label>Name (EN)</Label>
-                                    <a onClick={() => setShowARName(true)}
-                                       className    ={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
-                                    <Input name="name_en" register={register}/>
-                                </div>
-                                <Errors name='name_en' errors={errors}/>
-                                <Errors name='name_ar' errors={errors}/>
-                            </div>
+                                <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
+                                <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
+                                    <div>
+                                        <div className={`${showARName ? '' : 'hidden'}`}>
+                                            <Label>Name (AR)</Label>
+                                            <a onClick={() => setShowARName(false)}
+                                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
+                                            <Input name="name_ar"
+                                                   register={register}/>
+                                        </div>
+                                        <div className={`${!showARName ? '' : 'hidden'}`}>
+                                            <Label>Name (EN)</Label>
+                                            <a onClick={() => setShowARName(true)}
+                                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
+                                            <Input name="name_en" register={register}/>
+                                        </div>
+                                        <Errors name='name_en' errors={errors}/>
+                                        <Errors name='name_ar' errors={errors}/>
+                                    </div>
 
+                                    {
+                                        formType === 'add' &&
+                                        <div>
+                                            <Label>Product Type</Label>
+                                            <Select onSelect={handleType} options={productTypes} control={control}
+                                                    name='type'/>
+                                        </div>
+                                    }
+
+                                    {!isFetching && <div className={`col-span-1`}>
+                                        <Label>Select Category</Label>
+                                        <Select control={control}
+                                                valueField="id"
+                                                labelField="name"
+                                                name="category_id"
+                                                options={categories.data}
+
+                                        />
+                                        <Errors name='category_id' errors={errors}/>
+                                    </div>
+                                    }
+                                </div>
+                            </div>
                             {
-                                formType === 'add' &&
-                                <div>
-                                    <Label>Product Type</Label>
-                                    <Select onSelect={handleType} options={productTypes} control={control}
-                                            name='type'/>
-                                </div>
+                                productType === 'variable' ?
+                                    <>
+                                        <hr className="mt-6 border-b-1 border-blueGray-300"/>
+                                        <Variable attributes={attributes}/>
+                                    </>
+                                    : <Simple/>
                             }
-                            <div className={`col-span-2`}>
-                                <Label>Select Category</Label>
-                                <Select control={control}
-                                        valueField="id"
-                                        // onSelect={(val)=>{setValues(val)}}
-                                        labelField="name"
-                                        name="category_id"
-                                        options={categories.data}
-
-                                />
-                            </div>
-                            <Errors name='category_id' errors={errors}/>
-                        </div>
-                    </div>
-
-                    {
-                        productType === 'variable' ?
-                            <>
-                                <hr className="mt-6 border-b-1 border-blueGray-300"/>
-                                <Variable attributes={attributes}/>
-                            </>
-                            : <Simple/>
-                    }
                     <div className={`mt-8 text-right`}>
                         <Button>Save</Button>
                     </div>

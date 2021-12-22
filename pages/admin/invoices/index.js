@@ -5,11 +5,10 @@ import Table from "components/common/table";
 import Pagination from "components/common/Pagination";
 import React, {lazy, Suspense, useState} from "react";
 import Modal from "components/common/Modal";
-import {getCategories, deleteCategory} from "services/categories";
-import {dehydrate, QueryClient, useMutation, useQuery, useQueryClient} from 'react-query';
+import { getInvoices, deleteInvoice} from "services/invoices";
+import {useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
-
-const CategoryForm = lazy(() => import("components/categories/CategoryForm"));
+const InvoiceForm = lazy(() => import("components/invoices/InvoiceForm"));
 
 export default function Index() {
     const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
@@ -18,20 +17,19 @@ export default function Index() {
     const [page, setPage] = useState(1)
 
     const {
-        data: categories,
+        data: invoices,
         isFetching
-    } = useQuery(['categories',page], ()=>getCategories(page), {
+    } = useQuery(['invoices',page], ()=>getInvoices(page), {
         keepPreviousData: true,
-        onSuccess: (data) => {
-            queryClient.setQueryData('allCategories' , data)
+        onSuccess:(data)=>{
+            console.log(data,'invoices')
         },
-        placeholderData: {
-            data: [],
-            meta: []
+        placeholderData:{
+            data:[],
+            meta:[]
         }
 
     });
-
     const queryClient = useQueryClient();
     const columns = [
         {
@@ -39,66 +37,84 @@ export default function Index() {
             accessor: 'name'
         },
         {
-            header: 'Parent Category',
-            accessor: 'parent_category'
+            header: 'Customer',
+            accessor: 'customer_name'
         },
+
+        {
+            header: 'Quantity',
+            accessor: 'quantity'
+        },
+
+        {
+            header: 'Product',
+            accessor: 'product_name'
+        },
+        {
+            header: 'Barcode',
+            accessor: 'product_barcode'
+        },
+        {
+            header: 'Total',
+            accessor: 'total'
+        }
     ]
 
-    const editCategory = (index) => {
+    const editInvoice = (index) => {
         setFormType('edit')
         setCurrentEditableIndex(index)
         setIsAttributeModalOpen(true)
     }
 
-    const addCategory = () => {
+    const addInvoice = () => {
         setFormType('add')
         setCurrentEditableIndex(null)
         setIsAttributeModalOpen(true)
     }
 
-    const deleteMutation = useMutation(deleteCategory, {
+    const deleteMutation = useMutation(deleteInvoice, {
         onSuccess: async () => {
-            await queryClient.invalidateQueries('categories')
+            await queryClient.invalidateQueries('invoices')
         },
     })
-    const deleteCategoryHandler = async (index) => {
-        const category = categories.data[index];
-        await deleteMutation.mutateAsync(category.id)
+    const deleteInvoiceHandler = async (index) => {
+        const invoice = invoices.data[index];
+        await deleteMutation.mutateAsync(invoice.id)
     }
 
     const tableActions = (categoryIndex) =>
         <div className={`flex items-center gap-x-2`}>
-            <PencilIcon onClick={() => editCategory(categoryIndex)}
+            <PencilIcon onClick={() => editInvoice(categoryIndex)}
                         className={`w-5 h-5 text-lightBlue-500 cursor-pointer`}/>
-            <TrashIcon onClick={() => deleteCategoryHandler(categoryIndex)}
+            <TrashIcon onClick={() => deleteInvoiceHandler(categoryIndex)}
                        className={`w-5 h-5 text-red-400 cursor-pointer`}/>
         </div>
 
     return (
         <>
-            <Card title="Categories" actions={
+            <Card title="Invoices" actions={
                 <>
                     <>
-                        <CardAction onClick={addCategory}>Add New</CardAction>
+                        <CardAction onClick={addInvoice} >Add New</CardAction>
                     </>
 
                 </>
             }>
-                <Table isFetching={isFetching} columns={columns} data={categories.data}
+                <Table isFetching={isFetching } columns={columns} data={invoices.data}
                        actions={tableActions}
                 />
                 {
-                    categories.meta.last_page > 1 &&
-                    <Pagination onPageChange={(page) => setPage(page)} meta={categories.meta}/>
+                    invoices.meta.last_page > 1 &&
+                    <Pagination onPageChange={(page) => setPage(page)} meta={invoices.meta}/>
                 }
             </Card>
 
-            <Modal size="md" title={categories.data[currentEditableIndex]?.name ?? 'Add Category'}
+            <Modal size="lg" title={invoices.data[currentEditableIndex]?.name ?? 'Add Invoice'}
                    isOpen={isAttributeModalOpen}
                    close={() => setIsAttributeModalOpen(false)}>
                 <Suspense fallback={<div>loading...</div>}>
-                    <CategoryForm category={categories.data[currentEditableIndex]} formType={formType}
-                                  onSubmit={() => setIsAttributeModalOpen(false)}/>
+                    <InvoiceForm invoice={invoices.data[currentEditableIndex]} formType={formType}
+                                 onSubmitHandle={() => setIsAttributeModalOpen(false)}/>
                 </Suspense>
             </Modal>
         </>
