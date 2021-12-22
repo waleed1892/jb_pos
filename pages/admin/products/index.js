@@ -9,6 +9,7 @@ import {productColumns} from "components/products/utils";
 import Pagination from "components/common/Pagination";
 import React, {useState} from "react";
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
+import Swal from "sweetalert2";
 
 export default function Index() {
     const router = useRouter()
@@ -22,7 +23,19 @@ export default function Index() {
         }
     })
     const deleteProductHandler = async (index) => {
-        await deleteMutation.mutateAsync(products.data[index].id)
+
+        Swal.fire({
+            title: 'Confirm Delete?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: '#d33',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteMutation.mutateAsync(products.data[index].id)
+                Swal.fire('Deleted!', '', 'success')
+            }
+        })
     }
     const tableActions = (productIndex) =>
         <div className={`flex items-center gap-x-2`}>

@@ -35,7 +35,7 @@ const schema = yup.object({
  * @returns {JSX.Element}
  * @constructor
  */
-export default function InvoiceForm({formType = 'add', invoice = {}, onSubmitHandle}) {
+export default function InvoiceForm({formType = 'add', invoice = {}}) {
 
     const {register, handleSubmit, control, formState: {errors}, setValue} = useForm({
         resolver: yupResolver(schema)
@@ -74,7 +74,6 @@ export default function InvoiceForm({formType = 'add', invoice = {}, onSubmitHan
         } else if (formType === 'add') {
             await saveMutation.mutateAsync(data)
         }
-        // onSubmitHandle();
         await router.push('/admin/invoices')
     }
 
@@ -83,7 +82,7 @@ export default function InvoiceForm({formType = 'add', invoice = {}, onSubmitHan
             <form method={`post`}
                 // onSubmit={handleSubmit(onSubmit)}
             >
-                <div className="">
+                <div >
                     <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">Header</h6>
                     <div className={`grid grid-cols-3 gap-x-4 gap-y-6`}>
                         <div>
@@ -122,7 +121,7 @@ export default function InvoiceForm({formType = 'add', invoice = {}, onSubmitHan
                     </div>
                 </div>
 
-                <div className="">
+                <div >
                     <h6 className="text-blueGray-400 text-sm mt-8 mb-6 gap-y-6 font-bold uppercase">Body</h6>
                     <div className={`grid grid-cols-3 gap-x-4 gap-y-6`}>
                         <div>
@@ -165,18 +164,18 @@ export default function InvoiceForm({formType = 'add', invoice = {}, onSubmitHan
 
                 <div>
                     <h6 className="text-blueGray-400 text-sm mt-8 mb-6 font-bold uppercase">Actions</h6>
-                    <div className={`grid grid-cols-5 gap-x-4 gap-y-6`}>
+                    <div className={`grid grid-cols-6 gap-x-4 gap-y-6`}>
                         <div>
-                            <Button onClick={handleSubmit(onSubmit)}>Save</Button>
+                            <Button size="md" variant="success" onClick={handleSubmit(onSubmit)}>Save</Button>
                         </div>
                         <div>
-                            <Button>Modify</Button>
+                            <Button size="md"  >Modify</Button>
                         </div>
                         <div>
-                            <Button>Delete</Button>
+                            <Button size="md" variant="danger" >Delete</Button>
                         </div>
                         <div>
-                            <Button>Close</Button>
+                            <Button size="md" variant="info" >Close</Button>
                         </div>
                     </div>
                 </div>
