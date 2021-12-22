@@ -74,12 +74,12 @@ export default function InvoiceForm({formType = 'add', invoice = {}, onSubmitHan
         } else if (formType === 'add') {
             await saveMutation.mutateAsync(data)
         }
-        onSubmitHandle();
+        // onSubmitHandle();
         await router.push('/admin/invoices')
     }
 
     return (
-        <div className="px-6 py-6">
+        <div className="">
             <form method={`post`}
                 // onSubmit={handleSubmit(onSubmit)}
             >

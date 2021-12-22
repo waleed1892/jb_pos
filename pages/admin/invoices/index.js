@@ -8,6 +8,8 @@ import Modal from "components/common/Modal";
 import { getInvoices, deleteInvoice} from "services/invoices";
 import {useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
+import {useRouter} from 'next/router'
+import {router} from "next/client";
 const InvoiceForm = lazy(() => import("components/invoices/InvoiceForm"));
 
 export default function Index() {
@@ -84,7 +86,8 @@ export default function Index() {
 
     const tableActions = (categoryIndex) =>
         <div className={`flex items-center gap-x-2`}>
-            <PencilIcon onClick={() => editInvoice(categoryIndex)}
+            {/*<PencilIcon onClick={() => editInvoice(categoryIndex)}*/}
+            <PencilIcon onClick={() => router.push(`/admin/invoices/edit/${invoices.data[categoryIndex].id}`)}
                         className={`w-5 h-5 text-lightBlue-500 cursor-pointer`}/>
             <TrashIcon onClick={() => deleteInvoiceHandler(categoryIndex)}
                        className={`w-5 h-5 text-red-400 cursor-pointer`}/>
@@ -95,7 +98,8 @@ export default function Index() {
             <Card title="Invoices" actions={
                 <>
                     <>
-                        <CardAction onClick={addInvoice} >Add New</CardAction>
+                        {/*<CardAction onClick={addInvoice} >Add New</CardAction>*/}
+                        <CardAction onClick={() => router.push('/admin/invoices/add')} >Add New</CardAction>
                     </>
 
                 </>

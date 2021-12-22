@@ -104,8 +104,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
         } else if (formType === 'add') {
             await saveMutation.mutateAsync(data)
         }
-
-        // await router.push('/admin/products')
+        await router.push('/admin/products')
     }
     const handleType = (val) => {
         setProductType(val)
