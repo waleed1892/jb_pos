@@ -99,7 +99,7 @@ export default function Index() {
                        actions={tableActions}
                 />
                 {
-                    categories.meta.last_page > 1 &&
+                    categories.meta.last_page > 1 && !isFetching &&
                     <Pagination onPageChange={(page) => setPage(page)} meta={categories.meta}/>
                 }
             </Card>

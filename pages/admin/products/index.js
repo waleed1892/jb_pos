@@ -53,7 +53,7 @@ export default function Index() {
         }>
             <Table isFetching={isFetching} data={products.data} columns={productColumns} actions={tableActions}/>
             {
-                products.meta.last_page > 1 && <Pagination onPageChange={(page) => setPage(page)} meta={products.meta}/>
+                products.meta.last_page > 1 && !isFetching && <Pagination onPageChange={(page) => setPage(page)} meta={products.meta}/>
             }
         </Card>
     )
