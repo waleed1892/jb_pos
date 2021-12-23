@@ -54,6 +54,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     });
 
+    const queryClient = useQueryClient()
     const router = useRouter()
     const [productType, setProductType] = useState(productSkeleton.type);
     const [showARName, setShowARName] = useState(false);
@@ -94,8 +95,16 @@ export default function ProductForm({formType = 'add', product = {}}) {
         }
     }, [categories])
 
-    const saveMutation = useMutation(saveProduct)
-    const updateMutation = useMutation(updateProduct)
+    const saveMutation = useMutation(saveProduct, {
+        onSuccess: () => {
+            queryClient.invalidateQueries('products')
+        }
+    })
+    const updateMutation = useMutation(updateProduct, {
+        onSuccess: () => {
+            queryClient.invalidateQueries('products')
+        }
+    })
 
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
