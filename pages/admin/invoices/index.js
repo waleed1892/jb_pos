@@ -4,12 +4,11 @@ import CardAction from "components/common/Card/CardAction";
 import Table from "components/common/table";
 import Pagination from "components/common/Pagination";
 import React, {useState} from "react";
-import { getInvoices, deleteInvoice} from "services/invoices";
+import {getInvoices, deleteInvoice} from "services/invoices";
 import {useMutation, useQuery, useQueryClient} from 'react-query';
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
 import {useRouter} from 'next/router'
 import Swal from "sweetalert2";
-// const InvoiceForm = lazy(() => import("components/invoices/InvoiceForm"));
 
 export default function Index() {
     const [page, setPage] = useState(1)
@@ -18,14 +17,11 @@ export default function Index() {
     const {
         data: invoices,
         isFetching
-    } = useQuery(['invoices',page], ()=>getInvoices(page), {
+    } = useQuery(['invoices', page], () => getInvoices(page), {
         keepPreviousData: true,
-        onSuccess:(data)=>{
-            console.log(data,'invoices')
-        },
-        placeholderData:{
-            data:[],
-            meta:[]
+        placeholderData: {
+            data: [],
+            meta: []
         }
 
     });
@@ -93,12 +89,12 @@ export default function Index() {
             <Card title="Invoices" actions={
                 <>
                     <>
-                        <CardAction onClick={() => router.push('/admin/invoices/add')} >Add New</CardAction>
+                        <CardAction onClick={() => router.push('/admin/invoices/add')}>Add New</CardAction>
                     </>
 
                 </>
             }>
-                <Table isFetching={isFetching } columns={columns} data={invoices.data}
+                <Table isFetching={isFetching} columns={columns} data={invoices.data}
                        actions={tableActions}
                 />
                 {

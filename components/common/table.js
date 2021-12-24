@@ -57,10 +57,12 @@ export default function Table(
                     </thead>
                     <tbody>
                     {isFetching ? (
-                        <div
-                            className={`absolute inset-0 bg-blueGray-200 bg-opacity-40 flex items-center  mt-16   justify-center`}>
-                            <RefreshIcon className={`w-8 h-8 text-indigo-500 text-opacity-80 animate-spin`}/>
-                        </div>
+                        <tr>
+                            <td colSpan={columns.length + 1}
+                                className={`absolute inset-0  flex items-center  mt-16   justify-center`}>
+                                <RefreshIcon className={`w-8 h-8 text-indigo-500 text-opacity-80 animate-spin`}/>
+                            </td>
+                        </tr>
                     ) : (
                         <>
                             {!data.length ?
