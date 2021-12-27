@@ -108,6 +108,8 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
+
+        console.log(data, 'product data ')
         if (formType === 'edit') {
             await updateMutation.mutateAsync({id: product.id, data})
         } else if (formType === 'add') {
