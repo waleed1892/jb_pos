@@ -10,15 +10,16 @@ import {useEffect, useState} from "react";
 import {useFormContext} from "react-hook-form";
 import {UploadIcon} from "@heroicons/react/outline";
 import Modal from "../../common/Modal";
-import Button from "../../common/button";
-
 import {StyledDropzone} from "components/Dropzone";
+import { baseUrl} from "../../../lib/axios";
 
-export default function Simple() {
+
+export default function Simple({prodcutImages = []}) {
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const {control, formState: {errors}, register, setValue, getValues, trigger} = useFormContext()
     const [showScheduleFields, setShowScheduleFields] = useState(false);
     const [images, setImages] = useState([]);
+
 
     const handleFiveCode = () => {
         const code = generate5Code()
@@ -30,12 +31,14 @@ export default function Simple() {
         generateBarcode('barcode', code)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         setValue('images', images)
-    },[images])
+    }, [images])
 
-    const getImages=async (val)=>{
-        await  setImages(val)
+    console.log(images,'nnn')
+    const getImages = async (val) => {
+        await setImages(val)
+        // await setValue('images', images)
         setIsMediaModalOpen(false)
     }
 
@@ -46,12 +49,12 @@ export default function Simple() {
         }
     }
 
-        return (
+    return (
         <>
             <div className={`grid grid-cols-2 gap-x-4 gap-y-6 mt-6`}>
                 <div className={`col-span-2 flex gap-x-8`}>
                     <div className={`w-2/12`}>
-                        {/*<FileUpload name='simple_product.img' control={control}  label="Upload Image"/>*/}
+
                         <label
                             className={`w-48 h-36 flex flex-col items-center px-4 py-8 bg-white cursor-pointer rounded-md text-sm shadow focus:outline-none focus:ring ease-linear transition-all duration-150 group hover:bg-indigo-500`}
                             onClick={() => setIsMediaModalOpen(true)}>
@@ -176,18 +179,30 @@ export default function Simple() {
                 </div>
             </div>
 
+
             <Modal size="lg" title={'Media Library'}
                    isOpen={isMediaModalOpen}
                    close={() => setIsMediaModalOpen(false)}>
-                <div className={`grid grid-cols-6 h-350-px gap-x-4`}>
-                    <div
-                        className={` w-44 h-36 flex flex-col items-center bg-blueGray-100 bg-opacity-50 cursor-pointer rounded-md shadow`}>
-                        <img className={`w-full h-full object-contain`} id='image'
-                             src="https://via.placeholder.com/350x350" alt=""/>
-                    </div>
+                <div className={`grid grid-cols-6  min-h-350 gap-x-4`}>
+
+                    { prodcutImages.length>0 ?( prodcutImages.map(image => {
+                        return (
+                            <div
+                                className={` w-44 h-36 flex flex-col items-center bg-blueGray-100 bg-opacity-50 cursor-pointer rounded-md shadow`}>
+                                <img className={`w-full h-full object-contain`} id='image'
+                                     src={`${baseUrl}/${image.path}`} alt=""/>
+                            </div>
+                        )
+                    })):(
+                        <h1 className={`mt-10 ml-auto`} >No Image Added.</h1>
+                    )
+
+                    }
 
                 </div>
-                <StyledDropzone  name='simple_product.img' getImages={getImages} control={control}  />
+
+
+                <StyledDropzone name='simple_product.img' getImages={getImages} control={control}/>
             </Modal>
         </>
     )

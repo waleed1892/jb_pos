@@ -18,11 +18,8 @@ import Simple from "components/products/simple";
 import dynamic from "next/dynamic";
 import {cloneDeep} from "lodash";
 import {getAllCategories} from "../../services/categories";
-import {RefreshIcon} from "@heroicons/react/solid";
 
 const Variable = dynamic(() => import("components/products/variable"));
-
-
 const schema = yup.object({
     name_en: yup.string().required(),
     name_ar: yup.string().required(),
@@ -53,6 +50,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
         }
 
     });
+
 
     const queryClient = useQueryClient()
     const router = useRouter()
@@ -109,11 +107,31 @@ export default function ProductForm({formType = 'add', product = {}}) {
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
 
-        console.log(data, 'product data ')
+
+        const fd = new FormData();
+        for (let key in data) {
+            if(key === 'simple_product'){
+                for (let key in data.simple_product) {
+                    {data.simple_product[key] != null && fd.append(`simple_product[${key}]`, data.simple_product[key])}
+                }
+            }
+            else if(key === 'images'){
+                for (let key in data.images) {
+                    fd.append('images[]', data.images[key]);
+                }
+            } else{
+                fd.append(key, data[key]);
+            }
+        }
+
+
+
         if (formType === 'edit') {
-            await updateMutation.mutateAsync({id: product.id, data})
+            fd.append('_method', 'PUT');
+            await updateMutation.mutateAsync({id: product.id, fd})
         } else if (formType === 'add') {
-            await saveMutation.mutateAsync(data)
+            fd.append('_method', 'POST');
+            await saveMutation.mutateAsync(fd)
         }
         await router.push('/admin/products')
     }
@@ -184,7 +202,7 @@ export default function ProductForm({formType = 'add', product = {}}) {
                                         <hr className="mt-6 border-b-1 border-blueGray-300"/>
                                         <Variable attributes={attributes}/>
                                     </>
-                                    : <Simple/>
+                                    : <Simple prodcutImages={product.productImages}/>
                             }
                     <div className={`mt-8 text-right`}>
                         <Button>Save</Button>

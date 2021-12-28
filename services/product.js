@@ -1,4 +1,4 @@
-import {get, post} from "lib/axios";
+import {get, post , put} from "lib/axios";
 
 export const getProduct = async (id) => (await get(`product/${id}`)).data
 
@@ -6,7 +6,8 @@ export const saveProduct = (data) => {
     return post(`product`, data)
 }
 
-export const updateProduct = async ({id, data}) => (await post(`product/${id}`, data)).data
+export const updateProduct = async ({id, fd}) => (await post(`product/${id}`, fd)).data
+
 
 export const getProducts = async (page = 1) => {
     return (await get(`product?page=${page}`)).data
