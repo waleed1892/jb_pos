@@ -21,6 +21,7 @@ export default function Input({type = 'text', placeholder = '', name, register, 
     return (
         <input
             type={type}
+            size="md"
             name={name}
             onChange={changeHandler}
             ref={ref}

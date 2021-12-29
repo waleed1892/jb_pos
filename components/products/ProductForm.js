@@ -104,21 +104,20 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
-
         const fd = new FormData();
         for (let key in data) {
-            if(key === 'simple_product'){
+            if (key === 'simple_product') {
                 let simpleProd = JSON.stringify(data.simple_product);
                 fd.append('simple_product', simpleProd);
                 // for (let key in data.simple_product) {
                 //     {data.simple_product[key] != null && fd.append(`simple_product[${key}]`, data.simple_product[key])}
                 // }
-            }
-            else if(key === 'images'){
+            } else if (key === 'images') {
                 for (let key in data.images) {
-                    fd.append('images[]', data.images[key]);
+                    fd.append(`images[]`, data.images[key]);
+                    // fd.append(`images[][${key}][ar]`, data.images[key]['ar']);
                 }
-            } else{
+            } else {
                 fd.append(key, data[key]);
             }
         }
@@ -149,58 +148,58 @@ export default function ProductForm({formType = 'add', product = {}}) {
         <>
             <FormProvider {...methods}>
                 <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
+                        <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
                             <div>
-                                <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
-                                <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
-                                    <div>
-                                        <div className={`${showARName ? '' : 'hidden'}`}>
-                                            <Label>Name (AR)</Label>
-                                            <a onClick={() => setShowARName(false)}
-                                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
-                                            <Input name="name_ar"
-                                                   register={register}/>
-                                        </div>
-                                        <div className={`${!showARName ? '' : 'hidden'}`}>
-                                            <Label>Name (EN)</Label>
-                                            <a onClick={() => setShowARName(true)}
-                                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
-                                            <Input name="name_en" register={register}/>
-                                        </div>
-                                        <Errors name='name_en' errors={errors}/>
-                                        <Errors name='name_ar' errors={errors}/>
-                                    </div>
-
-                                    {
-                                        formType === 'add' &&
-                                        <div>
-                                            <Label>Product Type</Label>
-                                            <Select onSelect={handleType} options={productTypes} control={control}
-                                                    name='type'/>
-                                        </div>
-                                    }
-
-                                    {!isFetching && <div className={`col-span-1`}>
-                                        <Label>Select Category</Label>
-                                        <Select control={control}
-                                                valueField="id"
-                                                labelField="name"
-                                                name="category_id"
-                                                options={categories.data}
-
-                                        />
-                                        <Errors name='category_id' errors={errors}/>
-                                    </div>
-                                    }
+                                <div className={`${showARName ? '' : 'hidden'}`}>
+                                    <Label>Name (AR)</Label>
+                                    <a onClick={() => setShowARName(false)}
+                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
+                                    <Input name="name_ar"
+                                           register={register}/>
                                 </div>
+                                <div className={`${!showARName ? '' : 'hidden'}`}>
+                                    <Label>Name (EN)</Label>
+                                    <a onClick={() => setShowARName(true)}
+                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
+                                    <Input name="name_en" register={register}/>
+                                </div>
+                                <Errors name='name_en' errors={errors}/>
+                                <Errors name='name_ar' errors={errors}/>
                             </div>
+
                             {
-                                productType === 'variable' ?
-                                    <>
-                                        <hr className="mt-6 border-b-1 border-blueGray-300"/>
-                                        <Variable attributes={attributes}/>
-                                    </>
-                                    : <Simple prodcutImages={product.productImages}/>
+                                formType === 'add' &&
+                                <div>
+                                    <Label>Product Type</Label>
+                                    <Select onSelect={handleType} options={productTypes} control={control}
+                                            name='type'/>
+                                </div>
                             }
+
+                            {!isFetching && <div className={`col-span-1`}>
+                                <Label>Select Category</Label>
+                                <Select control={control}
+                                        valueField="id"
+                                        labelField="name"
+                                        name="category_id"
+                                        options={categories.data}
+
+                                />
+                                <Errors name='category_id' errors={errors}/>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    {
+                        productType === 'variable' ?
+                            <>
+                                <hr className="mt-6 border-b-1 border-blueGray-300"/>
+                                <Variable attributes={attributes}/>
+                            </>
+                            : <Simple prodcutImages={product.productImages}/>
+                    }
                     <div className={`mt-8 text-right`}>
                         <Button>Save</Button>
                     </div>

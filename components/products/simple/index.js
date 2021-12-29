@@ -37,6 +37,7 @@ export default function Simple({prodcutImages = []}) {
 
     const getImages = async (val) => {
         await setImages(val)
+        console.log(val,'checkeddddddd')
         // await setValue('images', images)
         setIsMediaModalOpen(false)
     }
