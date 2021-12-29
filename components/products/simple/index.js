@@ -35,7 +35,6 @@ export default function Simple({prodcutImages = []}) {
         setValue('images', images)
     }, [images])
 
-    console.log(images,'nnn')
     const getImages = async (val) => {
         await setImages(val)
         // await setValue('images', images)
