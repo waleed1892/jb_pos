@@ -12,13 +12,16 @@ import {UploadIcon} from "@heroicons/react/outline";
 import Modal from "../../common/Modal";
 import {StyledDropzone} from "components/Dropzone";
 import { baseUrl} from "../../../lib/axios";
+import {cloneDeep} from "lodash";
+
 
 
 export default function Simple({prodcutImages = []}) {
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-    const {control, formState: {errors}, register, setValue, getValues, trigger} = useFormContext()
+    const {control, formState: {errors}, register, setValue, getValues,  trigger} = useFormContext()
     const [showScheduleFields, setShowScheduleFields] = useState(false);
     const [images, setImages] = useState([]);
+    const [locales, setLocales] = useState([]);
 
 
     const handleFiveCode = () => {
@@ -33,12 +36,20 @@ export default function Simple({prodcutImages = []}) {
 
     useEffect(() => {
         setValue('images', images)
+        setValue('locales', locales)
+
     }, [images])
 
-    const getImages = async (val) => {
-        await setImages(val)
-        console.log(val,'checkeddddddd')
-        // await setValue('images', images)
+    const getImages =  (val) => {
+        const tmpLocals = cloneDeep(locales);
+        console.log(val, 'val')
+
+        val.map(image =>{
+            tmpLocals.push({en:image['en'], ar:image['ar']})
+        })
+        console.log(tmpLocals, 'check before')
+        setLocales(tmpLocals)
+         setImages(val)
         setIsMediaModalOpen(false)
     }
 
@@ -183,12 +194,12 @@ export default function Simple({prodcutImages = []}) {
             <Modal size="lg" title={'Media Library'}
                    isOpen={isMediaModalOpen}
                    close={() => setIsMediaModalOpen(false)}>
-                <div className={`grid grid-cols-6  min-h-350 gap-x-4`}>
+                <div className={`grid grid-cols-6 min-h-350 gap-x-4`}>
 
                     { prodcutImages.length>0 ?( prodcutImages.map(image => {
                         return (
                             <div
-                                className={` w-44 h-36 flex flex-col items-center bg-blueGray-100 bg-opacity-50 cursor-pointer rounded-md shadow`}>
+                                className={` w-44 h-36 flex flex-col mb-4 items-center bg-blueGray-100 bg-opacity-50 cursor-pointer rounded-md shadow`}>
                                 <img className={`w-full h-full object-contain`} id='image'
                                      src={`${baseUrl}/${image.path}`} alt=""/>
                             </div>
