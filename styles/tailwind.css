@@ -2491,6 +2491,11 @@ select {
   min-height: 100vh;
 }
 
+.min-h-350{
+  min-height: 350px;
+}
+
+
 .min-w-0 {
   min-width: 0px;
 }

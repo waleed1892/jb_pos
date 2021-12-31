@@ -22,6 +22,7 @@ export default function Index() {
             queryClient.setQueriesData('categories')
         }
     })
+
     const deleteProductHandler = async (index) => {
 
         Swal.fire({

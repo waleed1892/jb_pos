@@ -18,11 +18,8 @@ import Simple from "components/products/simple";
 import dynamic from "next/dynamic";
 import {cloneDeep} from "lodash";
 import {getAllCategories} from "../../services/categories";
-import {RefreshIcon} from "@heroicons/react/solid";
 
 const Variable = dynamic(() => import("components/products/variable"));
-
-
 const schema = yup.object({
     name_en: yup.string().required(),
     name_ar: yup.string().required(),
@@ -51,7 +48,6 @@ export default function ProductForm({formType = 'add', product = {}}) {
         placeholderData: {
             data: [],
         }
-
     });
 
     const queryClient = useQueryClient()
@@ -108,10 +104,41 @@ export default function ProductForm({formType = 'add', product = {}}) {
 
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
+        const fd = new FormData();
+        for (let key in data) {
+            if (key === 'simple_product') {
+                let simpleProd = JSON.stringify(data.simple_product);
+                fd.append('simple_product', simpleProd);
+            } else if (key === 'images') {
+                for (let key in data.images) {
+                    fd.append(`images[]`, data.images[key]);
+                }
+            } else if (key === 'locales') {
+                let locales = JSON.stringify(data.locales);
+                fd.append('locales', locales);
+            } else if (key === 'variations') {
+                // for (let key in data.variations) {
+                //     if(key==='images'){
+                //         for (let key in data.variations['images']) {
+                //             fd.append(`variations[][imagess]`, data.images[key]);
+                //         }
+                //     }else{
+                //         fd.append(`variations[]`, JSON.stringify(data.variations[key]));
+                //     }
+                // }
+                let variations = JSON.stringify(data.variations);
+                fd.append('variations', variations);
+            } else {
+                fd.append(key, data[key]);
+            }
+        }
+
         if (formType === 'edit') {
-            await updateMutation.mutateAsync({id: product.id, data})
+            fd.append('_method', 'PUT');
+            await updateMutation.mutateAsync({id: product.id, fd})
         } else if (formType === 'add') {
-            await saveMutation.mutateAsync(data)
+            fd.append('_method', 'POST');
+            await saveMutation.mutateAsync(fd)
         }
         await router.push('/admin/products')
     }
@@ -132,58 +159,58 @@ export default function ProductForm({formType = 'add', product = {}}) {
         <>
             <FormProvider {...methods}>
                 <form method={`post`} onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
+                        <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
                             <div>
-                                <h6 className="text-blueGray-400 text-sm mt-3 mb-6 font-bold uppercase">General</h6>
-                                <div className={`grid grid-cols-2 gap-x-4 gap-y-6`}>
-                                    <div>
-                                        <div className={`${showARName ? '' : 'hidden'}`}>
-                                            <Label>Name (AR)</Label>
-                                            <a onClick={() => setShowARName(false)}
-                                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
-                                            <Input name="name_ar"
-                                                   register={register}/>
-                                        </div>
-                                        <div className={`${!showARName ? '' : 'hidden'}`}>
-                                            <Label>Name (EN)</Label>
-                                            <a onClick={() => setShowARName(true)}
-                                               className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
-                                            <Input name="name_en" register={register}/>
-                                        </div>
-                                        <Errors name='name_en' errors={errors}/>
-                                        <Errors name='name_ar' errors={errors}/>
-                                    </div>
-
-                                    {
-                                        formType === 'add' &&
-                                        <div>
-                                            <Label>Product Type</Label>
-                                            <Select onSelect={handleType} options={productTypes} control={control}
-                                                    name='type'/>
-                                        </div>
-                                    }
-
-                                    {!isFetching && <div className={`col-span-1`}>
-                                        <Label>Select Category</Label>
-                                        <Select control={control}
-                                                valueField="id"
-                                                labelField="name"
-                                                name="category_id"
-                                                options={categories.data}
-
-                                        />
-                                        <Errors name='category_id' errors={errors}/>
-                                    </div>
-                                    }
+                                <div className={`${showARName ? '' : 'hidden'}`}>
+                                    <Label>Name (AR)</Label>
+                                    <a onClick={() => setShowARName(false)}
+                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>EN</a>
+                                    <Input name="name_ar"
+                                           register={register}/>
                                 </div>
+                                <div className={`${!showARName ? '' : 'hidden'}`}>
+                                    <Label>Name (EN)</Label>
+                                    <a onClick={() => setShowARName(true)}
+                                       className={`text-sm text-lightBlue-500 cursor-pointer ml-2`}>AR</a>
+                                    <Input name="name_en" register={register}/>
+                                </div>
+                                <Errors name='name_en' errors={errors}/>
+                                <Errors name='name_ar' errors={errors}/>
                             </div>
+
                             {
-                                productType === 'variable' ?
-                                    <>
-                                        <hr className="mt-6 border-b-1 border-blueGray-300"/>
-                                        <Variable attributes={attributes}/>
-                                    </>
-                                    : <Simple/>
+                                formType === 'add' &&
+                                <div>
+                                    <Label>Product Type</Label>
+                                    <Select onSelect={handleType} options={productTypes} control={control}
+                                            name='type'/>
+                                </div>
                             }
+
+                            {!isFetching && <div className={`col-span-1`}>
+                                <Label>Select Category</Label>
+                                <Select control={control}
+                                        valueField="id"
+                                        labelField="name"
+                                        name="category_id"
+                                        options={categories.data}
+
+                                />
+                                <Errors name='category_id' errors={errors}/>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    {
+                        productType === 'variable' ?
+                            <>
+                                <hr className="mt-6 border-b-1 border-blueGray-300"/>
+                                <Variable attributes={attributes}/>
+                            </>
+                            : <Simple prodcutImages={product.productImages}/>
+                    }
                     <div className={`mt-8 text-right`}>
                         <Button>Save</Button>
                     </div>
