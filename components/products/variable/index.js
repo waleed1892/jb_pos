@@ -7,12 +7,10 @@ import Button from "components/common/button";
 import CardAction from "components/common/Card/CardAction";
 import Alert from "components/common/alert";
 import {PencilIcon, TrashIcon} from "@heroicons/react/solid";
-import _ from "lodash";
 import {variationSkeleton} from "constants/variation";
 import {useFieldArray} from "react-hook-form";
 import 'lodash.product';
 import {useFormContext} from "react-hook-form";
-
 
 const Modal = lazy(() => import("components/common/Modal"))
 const VariationsForm = lazy(() => import('components/products/variations/VariationsForm'))
@@ -101,6 +99,7 @@ export default function Variable({attributes}) {
         setValue(`selectedAttributes.${index}.selectedValues`, valueIds)
         update(index, attribute)
     }
+
     return (
         <>
             <div>

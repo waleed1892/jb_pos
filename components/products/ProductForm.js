@@ -105,20 +105,30 @@ export default function ProductForm({formType = 'add', product = {}}) {
     const {data: attributes} = useQuery('allAttributes', getAllAttributes)
     const onSubmit = async (data) => {
         const fd = new FormData();
-        console.log(data,'before')
         for (let key in data) {
             if (key === 'simple_product') {
                 let simpleProd = JSON.stringify(data.simple_product);
                 fd.append('simple_product', simpleProd);
             } else if (key === 'images') {
                 for (let key in data.images) {
-                     fd.append(`images[]`,  data.images[key] );
+                    fd.append(`images[]`, data.images[key]);
                 }
-            }else if (key === 'locales') {
-                    let locales = JSON.stringify(data.locales);
-                    fd.append('locales', locales);
-            }
-            else {
+            } else if (key === 'locales') {
+                let locales = JSON.stringify(data.locales);
+                fd.append('locales', locales);
+            } else if (key === 'variations') {
+                // for (let key in data.variations) {
+                //     if(key==='images'){
+                //         for (let key in data.variations['images']) {
+                //             fd.append(`variations[][imagess]`, data.images[key]);
+                //         }
+                //     }else{
+                //         fd.append(`variations[]`, JSON.stringify(data.variations[key]));
+                //     }
+                // }
+                let variations = JSON.stringify(data.variations);
+                fd.append('variations', variations);
+            } else {
                 fd.append(key, data[key]);
             }
         }
